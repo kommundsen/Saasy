@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Package versions are added here as projects land in phase 0+. -->
+    <!-- See ADR-0006 for the convention; ADR-0002/0003/0005 for which packages are expected. -->
+  </ItemGroup>
+</Project>
