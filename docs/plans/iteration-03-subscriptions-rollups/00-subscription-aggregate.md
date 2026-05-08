@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [subscriptions, domain]
 depends-on: []
+agent: backend
 ---
 
 # Subscription aggregate

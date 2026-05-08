@@ -4,6 +4,7 @@ iteration: 06
 status: todo
 labels: [metering, domain]
 depends-on: [00-cycle-anchor, 01-late-event-window]
+agent: backend
 ---
 
 # FinalClose semantics

@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [frontend, api]
 depends-on: [00-react-vite-scaffold]
+agent: frontend
 ---
 
 # OpenAPI client generation pipeline

@@ -4,6 +4,7 @@ iteration: 09
 status: todo
 labels: [identity, customer-portal, security]
 depends-on: []
+agent: backend
 ---
 
 # Integrator-signed JWT auth
@@ -17,3 +18,5 @@ Placeholder of the `integrator-owned` Identity Mode (full identity work in Itera
 - Portal includes a refresh hook that calls back into the Integrator's site for a new token.
 - Failure modes (expired, bad signature, wrong aud) return 401 with WWW-Authenticate hint.
 - This issue is replaced by Iteration 10's full identity system; treat it as scaffolding.
+
+> **Note:** mixed-stack issue. Implementing the dominant backend side first; the frontend refresh-hook side is captured in TBD.

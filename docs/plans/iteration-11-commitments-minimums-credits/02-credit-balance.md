@@ -4,6 +4,7 @@ iteration: 11
 status: todo
 labels: [billing, domain]
 depends-on: []
+agent: backend
 ---
 
 # CreditBalance aggregate

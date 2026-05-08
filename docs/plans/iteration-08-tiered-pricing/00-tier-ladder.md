@@ -4,6 +4,7 @@ iteration: 08
 status: todo
 labels: [catalog, pricing, domain]
 depends-on: []
+agent: backend
 ---
 
 # Tier ladder value object

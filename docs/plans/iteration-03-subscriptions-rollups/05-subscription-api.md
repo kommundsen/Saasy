@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [subscriptions, api]
 depends-on: [00-subscription-aggregate]
+agent: backend
 ---
 
 # Subscription API surface

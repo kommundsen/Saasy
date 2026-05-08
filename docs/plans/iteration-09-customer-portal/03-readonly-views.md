@@ -4,6 +4,7 @@ iteration: 09
 status: todo
 labels: [frontend, customer-portal]
 depends-on: [00-portal-scaffold, 02-jwt-auth-placeholder]
+agent: frontend
 ---
 
 # Read-only usage + invoices views

@@ -4,6 +4,7 @@ iteration: 09
 status: todo
 labels: [frontend, customer-portal, design-system]
 depends-on: [00-portal-scaffold]
+agent: frontend
 ---
 
 # Per-Integrator theming

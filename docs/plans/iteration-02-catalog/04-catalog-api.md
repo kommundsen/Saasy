@@ -4,6 +4,7 @@ iteration: 02
 status: todo
 labels: [catalog, api]
 depends-on: [00-product-type-dimension, 02-plan-planversion, 03-pricing-components-phase1]
+agent: backend
 ---
 
 # Catalog API surface

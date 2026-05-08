@@ -4,6 +4,7 @@ iteration: 09
 status: todo
 labels: [frontend, customer-portal]
 depends-on: []
+agent: frontend
 ---
 
 # Customer Portal SPA scaffold

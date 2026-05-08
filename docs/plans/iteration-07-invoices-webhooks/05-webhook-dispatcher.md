@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [delivery, worker]
 depends-on: [04-webhook-subscription]
+agent: backend
 ---
 
 # Webhook Dispatcher

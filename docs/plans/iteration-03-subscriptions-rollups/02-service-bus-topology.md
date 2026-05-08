@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [infrastructure, eventing, aspire]
 depends-on: []
+agent: backend
 ---
 
 # Service Bus topology

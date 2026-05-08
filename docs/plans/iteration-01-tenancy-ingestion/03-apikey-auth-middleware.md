@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [tenancy, security, api]
 depends-on: [01-apikey-lifecycle]
+agent: backend
 ---
 
 # ApiKey authentication middleware

@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [invoicing, rendering]
 depends-on: [00-invoice-lineitem]
+agent: backend
 ---
 
 # JSON + HTML renderers

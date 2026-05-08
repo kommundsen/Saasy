@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [frontend, admin-dashboard, aspire]
 depends-on: []
+agent: frontend
 ---
 
 # React + Vite scaffold + Aspire integration

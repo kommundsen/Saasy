@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [ingestion, metering, worker]
 depends-on: [04-event-hubs-provisioning]
+agent: backend
 ---
 
 # Event ingestion consumer

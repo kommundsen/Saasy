@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [invoicing, worker]
 depends-on: [00-invoice-lineitem]
+agent: backend
 ---
 
 # Invoice generation worker

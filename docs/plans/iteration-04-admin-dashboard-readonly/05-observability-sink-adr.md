@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [observability, adr]
 depends-on: []
+agent: human
 ---
 
 # Observability sink decision

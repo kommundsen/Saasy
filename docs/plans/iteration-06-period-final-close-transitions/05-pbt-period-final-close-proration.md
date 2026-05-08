@@ -4,6 +4,7 @@ iteration: 06
 status: todo
 labels: [testing, pbt]
 depends-on: [00-cycle-anchor, 02-final-close-rollups, 03-plan-transition-proration]
+agent: backend
 ---
 
 # Property tests

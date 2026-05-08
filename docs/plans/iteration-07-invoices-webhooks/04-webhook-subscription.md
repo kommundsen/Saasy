@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [delivery, domain, api]
 depends-on: []
+agent: backend
 ---
 
 # WebhookSubscription aggregate

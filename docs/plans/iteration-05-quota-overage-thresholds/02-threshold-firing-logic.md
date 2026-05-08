@@ -4,6 +4,7 @@ iteration: 05
 status: todo
 labels: [metering, domain]
 depends-on: [01-threshold-config]
+agent: backend
 ---
 
 # Threshold firing logic + state on Rollup

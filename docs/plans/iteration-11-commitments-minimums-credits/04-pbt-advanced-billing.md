@@ -4,6 +4,7 @@ iteration: 11
 status: todo
 labels: [invoicing, testing, pbt]
 depends-on: [03-invoice-pipeline-ordering]
+agent: backend
 ---
 
 # Property tests for advanced billing

@@ -4,6 +4,7 @@ iteration: 02
 status: todo
 labels: [catalog, testing, pbt]
 depends-on: [01-aggregation-strategies]
+agent: backend
 ---
 
 # Property tests for `TimeWeightedLast`

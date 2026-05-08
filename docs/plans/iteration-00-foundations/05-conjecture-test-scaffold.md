@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, testing]
 depends-on: [03-shared-kernel-money-currency]
+agent: backend
 ---
 
 # Conjecture.NET test project scaffold

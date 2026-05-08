@@ -4,6 +4,7 @@ iteration: 05
 status: todo
 labels: [metering, eventing]
 depends-on: [02-threshold-firing-logic]
+agent: backend
 ---
 
 # `usage.threshold.crossed` Domain Event

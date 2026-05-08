@@ -4,6 +4,7 @@ iteration: 08
 status: todo
 labels: [invoicing]
 depends-on: [01-pricing-engine-tiered]
+agent: backend
 ---
 
 # LineItem rendering convention

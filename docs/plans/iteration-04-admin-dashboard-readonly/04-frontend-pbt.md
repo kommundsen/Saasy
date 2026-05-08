@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [frontend, testing, pbt]
 depends-on: [01-shared-ui-package]
+agent: frontend
 ---
 
 # Frontend property tests with fast-check

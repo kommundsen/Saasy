@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [ingestion, api]
 depends-on: [03-apikey-auth-middleware, 05-event-ingestion-consumer]
+agent: backend
 ---
 
 # HTTP POST /v1/events

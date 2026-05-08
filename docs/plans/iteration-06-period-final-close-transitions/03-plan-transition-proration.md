@@ -4,6 +4,7 @@ iteration: 06
 status: todo
 labels: [subscriptions, domain]
 depends-on: [00-cycle-anchor]
+agent: backend
 ---
 
 # PlanTransition with daily Proration

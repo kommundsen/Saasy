@@ -4,6 +4,7 @@ iteration: 08
 status: todo
 labels: [invoicing, pricing]
 depends-on: [00-tier-ladder]
+agent: backend
 ---
 
 # Pricing engine — Graduated + Volume

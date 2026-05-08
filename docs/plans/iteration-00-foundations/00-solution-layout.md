@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, repo]
 depends-on: []
+agent: backend
 ---
 
 # Solution layout & per-context project conventions

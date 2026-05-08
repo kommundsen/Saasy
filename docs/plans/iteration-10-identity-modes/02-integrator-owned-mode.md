@@ -4,6 +4,7 @@ iteration: 10
 status: todo
 labels: [identity, security]
 depends-on: [01-identity-mode-on-integrator]
+agent: backend
 ---
 
 # `integrator-owned` mode

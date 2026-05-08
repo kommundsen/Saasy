@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [tenancy, domain]
 depends-on: []
+agent: backend
 ---
 
 # Integrator aggregate

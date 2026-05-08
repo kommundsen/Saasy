@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, persistence, ef-core]
 depends-on: [02-aspire-apphost]
+agent: backend
 ---
 
 # Postgres provisioning + EF Core schema-per-context wiring

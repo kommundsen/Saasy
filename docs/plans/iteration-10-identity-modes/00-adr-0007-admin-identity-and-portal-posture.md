@@ -4,6 +4,7 @@ iteration: 10
 status: done
 labels: [identity, adr]
 depends-on: []
+agent: human
 ---
 
 # ADR-0007 — Admin Dashboard identity & Customer Portal posture

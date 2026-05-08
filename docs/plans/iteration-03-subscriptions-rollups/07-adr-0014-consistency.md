@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [architecture, adr]
 depends-on: []
+agent: human
 ---
 
 # ADR-0014 — cross-context consistency model

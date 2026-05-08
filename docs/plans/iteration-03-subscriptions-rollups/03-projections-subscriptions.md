@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [subscriptions, projections]
 depends-on: [02-service-bus-topology]
+agent: backend
 ---
 
 # Cross-context projections for Subscriptions context

@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, shared-kernel, domain]
 depends-on: [00-solution-layout]
+agent: backend
 ---
 
 # SharedKernel — Money & Currency

@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [infrastructure, adr, deployment]
 depends-on: []
+agent: human
 ---
 
 # Deployment topology ADR + first prod deploy

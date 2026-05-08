@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [invoicing, domain]
 depends-on: []
+agent: backend
 ---
 
 # Invoice + LineItem aggregates

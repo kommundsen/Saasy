@@ -4,6 +4,7 @@ iteration: 02
 status: todo
 labels: [catalog, pricing, domain]
 depends-on: [02-plan-planversion, 01-aggregation-strategies]
+agent: backend
 ---
 
 # Pricing Components (Phase 1)

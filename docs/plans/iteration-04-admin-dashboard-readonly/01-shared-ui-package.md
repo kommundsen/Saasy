@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [frontend, design-system]
 depends-on: [00-react-vite-scaffold]
+agent: frontend
 ---
 
 # Shared UI package + design tokens

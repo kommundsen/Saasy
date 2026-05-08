@@ -4,6 +4,7 @@ iteration: 07
 status: todo
 labels: [invoicing, testing, pbt]
 depends-on: [01-invoice-generation-worker, 02-invoice-renderers]
+agent: backend
 ---
 
 # Property tests for invoice determinism

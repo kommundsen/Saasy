@@ -4,6 +4,7 @@ iteration: 08
 status: todo
 labels: [invoicing, testing, pbt]
 depends-on: [01-pricing-engine-tiered]
+agent: backend
 ---
 
 # Property tests for tier ladders

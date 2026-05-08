@@ -4,6 +4,7 @@ iteration: 05
 status: todo
 labels: [metering, testing, pbt]
 depends-on: [02-threshold-firing-logic, 04-threshold-catchup-on-add]
+agent: backend
 ---
 
 # Property tests for Threshold firing

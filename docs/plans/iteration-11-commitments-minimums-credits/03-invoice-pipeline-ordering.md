@@ -4,6 +4,7 @@ iteration: 11
 status: todo
 labels: [invoicing, billing]
 depends-on: [00-commitment, 01-minimum-topup, 02-credit-balance]
+agent: backend
 ---
 
 # Invoice pipeline ordering

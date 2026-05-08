@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [metering, testing, pbt]
 depends-on: [04-rollup-aggregate-worker]
+agent: backend
 ---
 
 # Property tests for Rollup correctness

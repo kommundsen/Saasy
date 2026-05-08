@@ -4,6 +4,7 @@ iteration: 04
 status: todo
 labels: [frontend, admin-dashboard]
 depends-on: [01-shared-ui-package, 02-openapi-client-generation]
+agent: frontend
 ---
 
 # Read-only views

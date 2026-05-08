@@ -4,6 +4,7 @@ iteration: 02
 status: todo
 labels: [catalog, domain]
 depends-on: []
+agent: backend
 ---
 
 # ProductType + Dimension aggregates

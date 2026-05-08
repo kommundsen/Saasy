@@ -4,6 +4,7 @@ iteration: 05
 status: todo
 labels: [subscriptions, domain]
 depends-on: []
+agent: backend
 ---
 
 # ThresholdConfig on Subscription

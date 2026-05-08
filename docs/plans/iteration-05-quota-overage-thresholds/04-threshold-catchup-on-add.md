@@ -4,6 +4,7 @@ iteration: 05
 status: todo
 labels: [metering, domain]
 depends-on: [02-threshold-firing-logic]
+agent: backend
 ---
 
 # Catch-up on add behavior

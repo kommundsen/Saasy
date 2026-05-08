@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [metering, domain, worker]
 depends-on: [03-projections-subscriptions]
+agent: backend
 ---
 
 # Rollup aggregate + Rollup Updater worker

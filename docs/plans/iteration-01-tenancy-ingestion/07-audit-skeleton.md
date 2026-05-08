@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [tenancy, audit, observability]
 depends-on: [00-integrator-aggregate]
+agent: backend
 ---
 
 # Audit skeleton

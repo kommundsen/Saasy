@@ -4,6 +4,7 @@ iteration: 03
 status: todo
 labels: [infrastructure, eventing]
 depends-on: []
+agent: backend
 ---
 
 # Per-context Outbox + Outbox Relay worker

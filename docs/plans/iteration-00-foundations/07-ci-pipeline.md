@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, ci]
 depends-on: [05-conjecture-test-scaffold]
+agent: backend
 ---
 
 # CI pipeline (build, test, lint)

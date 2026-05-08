@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, aspire]
 depends-on: [00-solution-layout, 01-central-package-management]
+agent: backend
 ---
 
 # Aspire AppHost composition root

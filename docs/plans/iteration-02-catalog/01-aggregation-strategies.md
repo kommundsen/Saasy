@@ -4,6 +4,7 @@ iteration: 02
 status: todo
 labels: [catalog, metering, domain]
 depends-on: [00-product-type-dimension]
+agent: backend
 ---
 
 # Aggregation strategies

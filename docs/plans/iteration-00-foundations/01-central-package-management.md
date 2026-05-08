@@ -4,6 +4,7 @@ iteration: 00
 status: todo
 labels: [foundations, repo]
 depends-on: [00-solution-layout]
+agent: backend
 ---
 
 # Central Package Management bootstrap

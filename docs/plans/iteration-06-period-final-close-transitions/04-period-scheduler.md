@@ -4,6 +4,7 @@ iteration: 06
 status: todo
 labels: [metering, worker]
 depends-on: [02-final-close-rollups, 03-plan-transition-proration]
+agent: backend
 ---
 
 # Period scheduler / FinalClose worker

@@ -4,6 +4,7 @@ iteration: 01
 status: todo
 labels: [ingestion, infrastructure, aspire]
 depends-on: []
+agent: backend
 ---
 
 # Event Hubs provisioning + partition-by-integrator

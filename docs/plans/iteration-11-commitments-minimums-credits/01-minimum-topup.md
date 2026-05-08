@@ -4,6 +4,7 @@ iteration: 11
 status: todo
 labels: [catalog, billing]
 depends-on: []
+agent: backend
 ---
 
 # Minimum Pricing Component

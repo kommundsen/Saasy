@@ -4,6 +4,7 @@ iteration: 11
 status: todo
 labels: [documentation]
 depends-on: []
+agent: human
 ---
 
 # Update CONTEXT.md glossary
