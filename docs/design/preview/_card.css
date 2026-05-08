@@ -1,0 +1,43 @@
+/* Shared scaffold for design-system preview cards.
+   Each card is ~700px wide; height varies per card. Body bg matches paper. */
+@import url('../colors_and_type.css');
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--fg-1);
+  font-family: var(--font-sans);
+}
+.card-frame {
+  width: 700px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.row { display: flex; align-items: center; }
+.col { display: flex; flex-direction: column; }
+.gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; } .gap-5 { gap: 24px; } .gap-6 { gap: 32px; }
+.grow { flex: 1 1 auto; }
+
+.swatch {
+  width: 100%;
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(14,15,19,0.06);
+}
+.token {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.token .label {
+  font: 600 11px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.token .hex {
+  font: 500 12px/1 var(--font-mono);
+  color: var(--fg-2);
+}

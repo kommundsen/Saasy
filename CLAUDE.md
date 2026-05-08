@@ -1,5 +1,6 @@
 - Always read [CONTEXT.md](CONTEXT.md) and use its vocabulary verbatim.
 - For architecture read [architecture.md](docs/architecture/architecture.md).
 - ADRs live under [docs/decisions](docs/decisions/).
+- For UI work, read [docs/design/README.md](docs/design/README.md) and load tokens from [docs/design/colors_and_type.css](docs/design/colors_and_type.css). Surface-specific kits live under [docs/design/ui_kits/](docs/design/ui_kits/).
 - For Conjecture questions, prefer the `conjecture` MCP server (configured in `.mcp.json`) and [ommundsen.dev/Conjecture](https://ommundsen.dev/Conjecture/) over internal knowledge.
 - For .NET, Azure, ASP.NET Core, EF Core, Aspire, Event Hubs, and Azure Postgres questions, prefer the `microsoft-learn` MCP server over internal knowledge.

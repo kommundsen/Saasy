@@ -1,0 +1,43 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Semantic states</title>
+<link rel="stylesheet" href="_card.css"></head><body>
+<div class="card-frame col gap-4">
+  <div class="caption">State colors — used as wash + ink pairs on capsules. Never as full-saturation backgrounds with white text.</div>
+  <div class="row gap-3">
+    <div class="col gap-2 grow">
+      <div style="display:flex;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--border-1)">
+        <div style="flex:1;background:var(--live-wash)"></div>
+        <div style="flex:1;background:var(--live)"></div>
+        <div style="flex:1;background:var(--live-ink)"></div>
+      </div>
+      <div class="row gap-2"><span class="capsule live"><span class="live-dot" style="animation:none"></span> Live</span><span class="caption">healthy · in-period</span></div>
+    </div>
+    <div class="col gap-2 grow">
+      <div style="display:flex;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--border-1)">
+        <div style="flex:1;background:var(--warn-wash)"></div>
+        <div style="flex:1;background:var(--warn)"></div>
+        <div style="flex:1;background:var(--warn-ink)"></div>
+      </div>
+      <div class="row gap-2"><span class="capsule warn">⚠ 80%</span><span class="caption">threshold approaching</span></div>
+    </div>
+  </div>
+  <div class="row gap-3">
+    <div class="col gap-2 grow">
+      <div style="display:flex;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--border-1)">
+        <div style="flex:1;background:var(--over-wash)"></div>
+        <div style="flex:1;background:var(--over)"></div>
+        <div style="flex:1;background:var(--over-ink)"></div>
+      </div>
+      <div class="row gap-2"><span class="capsule over">overage</span><span class="caption">over Quota · rejected event</span></div>
+    </div>
+    <div class="col gap-2 grow">
+      <div style="display:flex;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--border-1)">
+        <div style="flex:1;background:var(--sandbox-wash)"></div>
+        <div style="flex:1;background:var(--sandbox)"></div>
+        <div style="flex:1;background:var(--sandbox-ink)"></div>
+      </div>
+      <div class="row gap-2"><span class="capsule sandbox">Sandbox</span><span class="caption">Integrator Kind · ADR-0009</span></div>
+    </div>
+  </div>
+</div>
+</body></html>

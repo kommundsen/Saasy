@@ -1,0 +1,458 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Saasy · Create a Plan</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { background: var(--paper-2); }
+  .frame { max-width: 1100px; margin: 0 auto; padding: 32px 28px 80px; }
+  .top { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .top .crumbs { font: 500 12px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; display: flex; gap: 8px; align-items: center; }
+  .top .right { margin-left: auto; display: flex; gap: 8px; }
+  h1.title { font: 600 32px/1.2 var(--font-sans); letter-spacing: -0.02em; margin: 0 0 8px; }
+  .subtitle { color: var(--fg-2); font: 400 15px var(--font-sans); margin-bottom: 32px; }
+
+  .stepper { display: flex; gap: 0; margin-bottom: 28px; background: var(--paper); border: 1px solid var(--border-1); border-radius: 12px; padding: 4px; }
+  .step { flex: 1; padding: 12px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: background 120ms; }
+  .step:hover { background: var(--paper-2); }
+  .step.active { background: var(--sass-pink-wash); }
+  .step.done { color: var(--fg-2); }
+  .step .num { width: 24px; height: 24px; border-radius: 999px; background: var(--paper-3); display: flex; align-items: center; justify-content: center; font: 600 12px var(--font-mono); flex-shrink: 0; }
+  .step.active .num { background: var(--sass-pink); color: var(--fg-inv); }
+  .step.done .num { background: var(--live); color: var(--fg-inv); }
+  .step .lbl { font: 500 13px var(--font-sans); }
+  .step.active .lbl { color: var(--ink); }
+  .step .sub { font: 400 11px var(--font-mono); color: var(--fg-3); margin-top: 2px; }
+
+  .card-frame { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 28px 32px; box-shadow: var(--shadow-1); }
+  .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+  .field-row .field { margin-bottom: 0; }
+  .field label { font: 500 13px var(--font-sans); color: var(--fg-1); }
+  .field .help { font: 400 12px var(--font-sans); color: var(--fg-2); }
+  .field .help .term { font-family: var(--font-mono); color: var(--fg-1); }
+
+  .pc-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .pc { border: 1px solid var(--border-1); border-radius: 12px; padding: 18px 20px; background: var(--paper-2); position: relative; }
+  .pc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .pc-head .ic { width: 28px; height: 28px; background: var(--paper); border: 1px solid var(--border-1); border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .pc-head .name { font: 600 14px var(--font-sans); color: var(--fg-1); }
+  .pc-head .meta { font: 400 12px var(--font-mono); color: var(--fg-3); }
+  .pc-head .remove { margin-left: auto; background: none; border: none; color: var(--fg-3); cursor: pointer; padding: 4px; border-radius: 4px; }
+  .pc-head .remove:hover { color: var(--over-ink); background: var(--over-wash); }
+  .pc-body { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .pc-body .col { display: flex; flex-direction: column; gap: 4px; }
+  .pc-body .lbl { font: 500 11px var(--font-mono); color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; }
+  .pc-body .val { font: 500 14px var(--font-sans); color: var(--fg-1); }
+  .pc-body .val.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+
+  .add-pc { display: flex; gap: 10px; flex-wrap: wrap; }
+  .add-pc .opt { flex: 1; min-width: 180px; padding: 14px; border: 1px dashed var(--border-2); border-radius: 10px; background: transparent; cursor: pointer; text-align: left; transition: all 120ms; }
+  .add-pc .opt:hover { border-color: var(--sass-pink); background: var(--sass-pink-wash); }
+  .add-pc .opt .name { font: 600 13px var(--font-sans); color: var(--fg-1); margin-bottom: 4px; }
+  .add-pc .opt .desc { font: 400 12px var(--font-sans); color: var(--fg-2); }
+
+  .tier-table { width: 100%; border-collapse: collapse; background: var(--paper); border: 1px solid var(--border-1); border-radius: 8px; overflow: hidden; margin-top: 10px; }
+  .tier-table th, .tier-table td { padding: 10px 14px; text-align: left; font: 400 13px var(--font-sans); border-top: 1px solid var(--border-1); }
+  .tier-table th { font: 500 11px var(--font-mono); color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; background: var(--paper-2); border-top: none; }
+  .tier-table td.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+
+  .review-grid { display: grid; grid-template-columns: 200px 1fr; gap: 8px 24px; }
+  .review-grid .lbl { font: 500 11px var(--font-mono); color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; padding: 8px 0; border-top: 1px solid var(--border-1); }
+  .review-grid .val { font: 500 14px var(--font-sans); color: var(--fg-1); padding: 8px 0; border-top: 1px solid var(--border-1); }
+  .review-grid .lbl:first-child, .review-grid .val:nth-child(2) { border-top: none; }
+  .review-grid .val.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+
+  .footer { display: flex; align-items: center; gap: 8px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-1); }
+  .footer .right { margin-left: auto; display: flex; gap: 8px; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--fg-inv); padding: 14px 20px 14px 16px; border-radius: 10px; box-shadow: var(--shadow-3); display: flex; align-items: center; gap: 10px; font: 500 14px var(--font-sans); animation: slide-up 220ms ease-out; z-index: 50; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--live); }
+  .toast .id { font-family: var(--font-mono); color: var(--ink-3); margin-left: 8px; }
+  @keyframes slide-up { from { transform: translate(-50%, 12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+  .success { text-align: center; padding: 60px 40px; }
+  .success .icon { width: 72px; height: 72px; border-radius: 999px; background: var(--live-wash); color: var(--live-ink); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .success .ttl { font: 600 24px var(--font-sans); margin-bottom: 8px; }
+  .success .meta { font: 400 14px var(--font-sans); color: var(--fg-2); margin-bottom: 8px; }
+  .success .id { font: 500 14px var(--font-mono); color: var(--fg-1); background: var(--paper-2); border: 1px solid var(--border-1); padding: 6px 12px; border-radius: 6px; display: inline-block; margin-bottom: 24px; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-screen-label="Prototype · Create Plan">
+<div id="root"></div>
+<script type="text/babel">
+const { useState } = React;
+
+const StrokeIcon = ({ d, size=18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+       dangerouslySetInnerHTML={{ __html: d }} />
+);
+
+const I = {
+  check:  '<path d="M4 12l5 5L20 6"/>',
+  chev:   '<path d="m9 18 6-6-6-6"/>',
+  trash:  '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/>',
+  flat:   '<path d="M3 12h18"/><circle cx="12" cy="12" r="9"/>',
+  seat:   '<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M16 14c2.2 0 4 1.5 4 4"/>',
+  meter:  '<path d="M3 21V5"/><path d="M7 21v-8"/><path d="M11 21V9"/><path d="M15 21v-5"/><path d="M19 21v-3"/>',
+  plus:   '<path d="M12 5v14M5 12h14"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/>',
+  bigChk: '<path d="M5 13l4 4L19 7"/>',
+};
+
+function App() {
+  const [step, setStep]  = useState(1);
+  const [done, setDone]  = useState(false);
+  const [plan, setPlan]  = useState({
+    name: "Pro",
+    code: "pro",
+    desc: "For growing teams shipping daily.",
+    currency: "USD",
+    interval: "monthly",
+    anchor: "subscription_start",
+    exclusive: true,
+    components: [
+      { kind: "flat",  amount: 499,  label: "Base subscription · USD 499 / mo" },
+      { kind: "seat",  amount: 8,    agg: "time_weighted_last", label: "Per-Seat Fee · USD 8 / seat / mo" },
+      { kind: "meter", dim: "api_calls", quota: 1000000, model: "tiered_graduated",
+        tiers: [
+          { from: 0,        to: 1000000,  rate: 0.000 },
+          { from: 1000001,  to: 5000000,  rate: 0.001 },
+          { from: 5000001,  to: null,     rate: 0.0005 },
+        ],
+        label: "Metered · api_calls · Quota 1M · tiered (graduated)" },
+    ],
+  });
+
+  if (done) return <SuccessView plan={plan} />;
+
+  return (
+    <div className="frame">
+      <div className="top">
+        <div className="crumbs">
+          <span>Plans</span>
+          <StrokeIcon d={I.chev} size={12}/>
+          <span style={{ color: "var(--fg-1)" }}>Create</span>
+        </div>
+        <div className="right">
+          <button className="btn btn-ghost">Cancel</button>
+          <button className="btn btn-secondary">Save draft</button>
+        </div>
+      </div>
+
+      <h1 className="title">Create a Plan</h1>
+      <p className="subtitle">A Plan defines what a Customer is buying. After it's created, you'll publish a <span style={{fontFamily:'var(--font-mono)'}}>Plan Version</span> and Customers Subscribe to that Version.</p>
+
+      <Stepper step={step} setStep={setStep} />
+
+      <div className="card-frame" style={{ marginTop: 4 }}>
+        {step === 1 && <StepBasics plan={plan} setPlan={setPlan} onNext={() => setStep(2)} />}
+        {step === 2 && <StepPricing plan={plan} setPlan={setPlan} onBack={() => setStep(1)} onNext={() => setStep(3)} />}
+        {step === 3 && <StepReview plan={plan} onBack={() => setStep(2)} onCreate={() => setDone(true)} />}
+      </div>
+    </div>
+  );
+}
+
+function Stepper({ step, setStep }) {
+  const items = [
+    { n: 1, l: "Basics",            s: "Name, currency, cycle" },
+    { n: 2, l: "Pricing components", s: "Flat, per-seat, metered" },
+    { n: 3, l: "Review & publish",   s: "Plan Version v1" },
+  ];
+  return (
+    <div className="stepper">
+      {items.map(it => {
+        const cls = step === it.n ? "active" : step > it.n ? "done" : "";
+        return (
+          <div key={it.n} className={`step ${cls}`} onClick={() => setStep(it.n)}>
+            <div className="num">{step > it.n ? <StrokeIcon d={I.check} size={14}/> : it.n}</div>
+            <div>
+              <div className="lbl">{it.l}</div>
+              <div className="sub">{it.s}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function StepBasics({ plan, setPlan, onNext }) {
+  const set = (k, v) => setPlan({ ...plan, [k]: v });
+  return (
+    <div>
+      <h2 style={{font:'600 18px var(--font-sans)', margin:'0 0 22px'}}>Basics</h2>
+      <div className="field-row">
+        <div className="field">
+          <label>Name</label>
+          <input className="input" value={plan.name} onChange={e=>set('name',e.target.value)} />
+          <div className="help">Customer-facing. Shown on Invoices and in the Portal.</div>
+        </div>
+        <div className="field">
+          <label>Code</label>
+          <input className="input mono" value={plan.code} onChange={e=>set('code',e.target.value)} />
+          <div className="help">URL-safe identifier. Used in API as <span className="term">plan_code</span>.</div>
+        </div>
+      </div>
+      <div className="field">
+        <label>Description</label>
+        <textarea className="input" rows="2" value={plan.desc} onChange={e=>set('desc',e.target.value)} style={{resize:'vertical', fontFamily:'var(--font-sans)'}}/>
+      </div>
+      <div className="field-row">
+        <div className="field">
+          <label>Currency</label>
+          <select className="input mono" value={plan.currency} onChange={e=>set('currency',e.target.value)}>
+            <option>USD</option><option>EUR</option><option>GBP</option><option>JPY</option>
+          </select>
+          <div className="help">A Plan is denominated in a single currency. Multi-currency = multiple Plans.</div>
+        </div>
+        <div className="field">
+          <label>Billing interval</label>
+          <select className="input mono" value={plan.interval} onChange={e=>set('interval',e.target.value)}>
+            <option value="monthly">monthly</option>
+            <option value="quarterly">quarterly</option>
+            <option value="yearly">yearly</option>
+          </select>
+        </div>
+      </div>
+      <div className="field-row">
+        <div className="field">
+          <label>Cycle anchor</label>
+          <select className="input mono" value={plan.anchor} onChange={e=>set('anchor',e.target.value)}>
+            <option value="subscription_start">subscription_start (proration on subscribe)</option>
+            <option value="anchor_day_1">anchor_day · 1st of month</option>
+            <option value="anchor_day_15">anchor_day · 15th of month</option>
+          </select>
+          <div className="help">When does each <span className="term">Period</span> start? See ADR-0010.</div>
+        </div>
+        <div className="field">
+          <label>Exclusivity</label>
+          <div style={{display:'flex', gap:18, padding:'10px 0'}}>
+            <label style={{display:'flex', gap:8, alignItems:'center', font:'500 13px var(--font-sans)', cursor:'pointer'}}>
+              <input type="radio" checked={plan.exclusive} onChange={()=>set('exclusive',true)}/>
+              Exclusive — one active per Customer
+            </label>
+            <label style={{display:'flex', gap:8, alignItems:'center', font:'500 13px var(--font-sans)', cursor:'pointer'}}>
+              <input type="radio" checked={!plan.exclusive} onChange={()=>set('exclusive',false)}/>
+              Stackable
+            </label>
+          </div>
+        </div>
+      </div>
+      <div className="footer">
+        <span className="caption">Step 1 of 3</span>
+        <div className="right">
+          <button className="btn btn-primary" onClick={onNext}>Next: Pricing components<StrokeIcon d={I.chev} size={14}/></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StepPricing({ plan, setPlan, onBack, onNext }) {
+  const remove = (i) => setPlan({ ...plan, components: plan.components.filter((_, j) => j !== i) });
+  const add = (kind) => {
+    const presets = {
+      flat:  { kind:'flat',  amount: 99, label:'Base subscription · USD 99 / mo' },
+      seat:  { kind:'seat',  amount: 6,  agg:'time_weighted_last', label:'Per-Seat Fee · USD 6 / seat / mo' },
+      meter: { kind:'meter', dim:'storage_gb', quota:100, model:'flat',
+                rate: 0.05, label:'Metered · storage_gb · Quota 100 · flat overage' },
+    };
+    setPlan({ ...plan, components: [...plan.components, presets[kind]] });
+  };
+
+  return (
+    <div>
+      <h2 style={{font:'600 18px var(--font-sans)', margin:'0 0 6px'}}>Pricing components</h2>
+      <p style={{font:'400 14px var(--font-sans)', color:'var(--fg-2)', margin:'0 0 22px'}}>
+        A Plan can stack any number of these. Saasy never charges; it computes a Line Item per component each Period.
+      </p>
+
+      <div className="pc-list">
+        {plan.components.map((c, i) => <PCRow key={i} c={c} onRemove={() => remove(i)}/>)}
+      </div>
+
+      <div style={{font:'500 11px var(--font-mono)', color:'var(--fg-3)', letterSpacing:'0.06em', textTransform:'uppercase', marginBottom:10}}>Add component</div>
+      <div className="add-pc">
+        <button className="opt" onClick={()=>add('flat')}>
+          <div className="name">Flat Fee</div>
+          <div className="desc">One charge per Period.</div>
+        </button>
+        <button className="opt" onClick={()=>add('seat')}>
+          <div className="name">Per-Seat Fee</div>
+          <div className="desc">Aggregated by <span style={{fontFamily:'var(--font-mono)'}}>time_weighted_last</span>.</div>
+        </button>
+        <button className="opt" onClick={()=>add('meter')}>
+          <div className="name">Metered Charge</div>
+          <div className="desc">Quota + overage. Tiered or flat.</div>
+        </button>
+      </div>
+
+      <div className="footer">
+        <span className="caption">Step 2 of 3 · {plan.components.length} component{plan.components.length===1?'':'s'}</span>
+        <div className="right">
+          <button className="btn btn-secondary" onClick={onBack}>Back</button>
+          <button className="btn btn-primary" onClick={onNext} disabled={plan.components.length===0}>Next: Review<StrokeIcon d={I.chev} size={14}/></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PCRow({ c, onRemove }) {
+  const meta = c.kind === 'flat' ? 'Flat Fee' : c.kind === 'seat' ? 'Per-Seat Fee' : 'Metered Charge';
+  const ico = c.kind === 'flat' ? I.flat : c.kind === 'seat' ? I.seat : I.meter;
+  return (
+    <div className="pc">
+      <div className="pc-head">
+        <div className="ic"><StrokeIcon d={ico} size={16}/></div>
+        <div>
+          <div className="name">{c.label}</div>
+          <div className="meta">{meta}</div>
+        </div>
+        <button className="remove" onClick={onRemove}><StrokeIcon d={I.trash} size={16}/></button>
+      </div>
+
+      {c.kind === 'flat' && (
+        <div className="pc-body">
+          <Col l="Amount" v={`${c.amount.toFixed(2)}`} mono />
+          <Col l="Currency" v="USD" mono />
+          <Col l="Cadence" v="per period" />
+          <Col l="Proration" v="enabled" />
+        </div>
+      )}
+      {c.kind === 'seat' && (
+        <div className="pc-body">
+          <Col l="Rate" v={`${c.amount.toFixed(2)} / seat`} mono />
+          <Col l="Aggregation" v={c.agg} mono />
+          <Col l="Currency" v="USD" mono />
+          <Col l="Proration" v="enabled" />
+        </div>
+      )}
+      {c.kind === 'meter' && (
+        <>
+          <div className="pc-body">
+            <Col l="Dimension" v={c.dim} mono />
+            <Col l="Quota" v={c.quota.toLocaleString()} mono />
+            <Col l="Threshold webhooks" v="0.50, 0.80, 1.00" mono />
+            <Col l="Pricing model" v={c.model} />
+          </div>
+          {c.model === 'tiered_graduated' && c.tiers && (
+            <table className="tier-table">
+              <thead><tr><th>From</th><th>To</th><th>Rate / unit</th></tr></thead>
+              <tbody>
+                {c.tiers.map((t, i) => (
+                  <tr key={i}>
+                    <td className="mono">{t.from.toLocaleString()}</td>
+                    <td className="mono">{t.to == null ? '∞' : t.to.toLocaleString()}</td>
+                    <td className="mono">USD {t.rate.toFixed(4)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+const Col = ({l, v, mono}) => (
+  <div className="col">
+    <div className="lbl">{l}</div>
+    <div className={`val ${mono?'mono':''}`}>{v}</div>
+  </div>
+);
+
+function StepReview({ plan, onBack, onCreate }) {
+  return (
+    <div>
+      <h2 style={{font:'600 18px var(--font-sans)', margin:'0 0 6px'}}>Review</h2>
+      <p style={{font:'400 14px var(--font-sans)', color:'var(--fg-2)', margin:'0 0 24px'}}>
+        Creating this Plan will publish <span style={{fontFamily:'var(--font-mono)', color:'var(--fg-1)'}}>{plan.code} · v1</span>. Customers can be Subscribed immediately.
+      </p>
+
+      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom: 24}}>
+        <div>
+          <h3 style={{font:'600 13px var(--font-mono)', color:'var(--fg-3)', letterSpacing:'0.06em', textTransform:'uppercase', margin:'0 0 12px'}}>Basics</h3>
+          <div className="review-grid">
+            <div className="lbl">Name</div><div className="val">{plan.name}</div>
+            <div className="lbl">Code</div><div className="val mono">{plan.code}</div>
+            <div className="lbl">Currency</div><div className="val mono">{plan.currency}</div>
+            <div className="lbl">Interval</div><div className="val mono">{plan.interval}</div>
+            <div className="lbl">Cycle anchor</div><div className="val mono">{plan.anchor}</div>
+            <div className="lbl">Exclusivity</div><div className="val">{plan.exclusive ? 'one active per Customer' : 'stackable'}</div>
+          </div>
+        </div>
+        <div>
+          <h3 style={{font:'600 13px var(--font-mono)', color:'var(--fg-3)', letterSpacing:'0.06em', textTransform:'uppercase', margin:'0 0 12px'}}>Components ({plan.components.length})</h3>
+          <div className="review-grid">
+            {plan.components.map((c, i) => (
+              <React.Fragment key={i}>
+                <div className="lbl">{c.kind === 'flat' ? 'Flat Fee' : c.kind === 'seat' ? 'Per-Seat Fee' : 'Metered'}</div>
+                <div className="val">{c.label}</div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{background:'var(--sass-pink-wash)', border:'1px solid color-mix(in oklab, var(--sass-pink) 30%, transparent)', borderRadius:10, padding:'14px 18px', display:'flex', gap:12, alignItems:'flex-start'}}>
+        <StrokeIcon d={I.layers} size={18}/>
+        <div style={{font:'500 13px/1.5 var(--font-sans)', color:'var(--ink)'}}>
+          <div style={{fontWeight:600, marginBottom:2}}>This publishes Plan Version v1.</div>
+          <div style={{color:'var(--fg-2)'}}>To change pricing later, publish v2. Existing Subscriptions stay on v1 unless you migrate them. See <span style={{fontFamily:'var(--font-mono)'}}>ADR-0008</span>.</div>
+        </div>
+      </div>
+
+      <div className="footer">
+        <span className="caption">Step 3 of 3</span>
+        <div className="right">
+          <button className="btn btn-secondary" onClick={onBack}>Back</button>
+          <button className="btn btn-primary" onClick={onCreate}>
+            <StrokeIcon d={I.bigChk} size={14}/>Create Plan & publish v1
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SuccessView({ plan }) {
+  return (
+    <div className="frame">
+      <div className="top">
+        <div className="crumbs">
+          <span>Plans</span>
+          <StrokeIcon d={I.chev} size={12}/>
+          <span style={{ color: "var(--fg-1)" }}>{plan.name}</span>
+        </div>
+        <div className="right">
+          <button className="btn btn-ghost" onClick={()=>location.reload()}>← Start over</button>
+        </div>
+      </div>
+      <div className="card-frame success">
+        <div className="icon"><StrokeIcon d={I.bigChk} size={32}/></div>
+        <div className="ttl">Plan created.</div>
+        <div className="meta">{plan.name} is live in this Integrator's <span style={{fontFamily:'var(--font-mono)'}}>SANDBOX</span>.</div>
+        <div className="id">{plan.code} · v1 · plan_{Math.random().toString(36).slice(2,10)}</div>
+        <div style={{display:'flex', gap:8, justifyContent:'center'}}>
+          <button className="btn btn-secondary">View Plan</button>
+          <button className="btn btn-primary">Subscribe a Customer</button>
+        </div>
+      </div>
+      <div className="toast">
+        <span className="dot"></span>
+        Webhook fired
+        <span className="id">plan.created</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

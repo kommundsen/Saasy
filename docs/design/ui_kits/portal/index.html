@@ -1,0 +1,184 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Saasy · Customer Portal</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { background: var(--paper-2); }
+  .portal { max-width: 1080px; margin: 0 auto; padding: 32px 28px 64px; }
+  .portal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .portal-head .integrator { font: 600 18px var(--font-sans); color: var(--fg-1); letter-spacing: -0.01em; }
+  .portal-head .powered { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--fg-3); font: 400 12px var(--font-sans); }
+  .portal-head .powered img { opacity: 0.6; }
+  .hero { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 28px 28px 24px; margin-bottom: 20px; box-shadow: var(--shadow-1); }
+  .hero-row { display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+  .hero-row .h1 { margin: 0; }
+  .hero-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 20px; border-top: 1px solid var(--border-1); }
+  .hero-meta .lbl { font: 500 11px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-meta .val { font: 500 15px var(--font-sans); color: var(--fg-1); }
+  .hero-meta .val.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+  .quota-card { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 24px 28px; margin-bottom: 16px; box-shadow: var(--shadow-1); }
+  .quota-card h3 { margin: 0 0 4px; font: 600 14px/1 var(--font-sans); color: var(--fg-1); }
+  .quota-card .desc { font: 400 13px var(--font-sans); color: var(--fg-2); margin-bottom: 16px; }
+  .meter-row { display: grid; grid-template-columns: 200px 1fr 160px; gap: 20px; align-items: center; padding: 14px 0; border-top: 1px solid var(--border-1); }
+  .meter-row:first-of-type { border-top: none; }
+  .meter-row .name { font: 500 14px var(--font-sans); color: var(--fg-1); }
+  .meter-row .name .sub { display: block; font: 400 12px var(--font-mono); color: var(--fg-3); margin-top: 2px; text-transform: lowercase; }
+  .meter-row .nums { text-align: right; font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+  .meter-row .nums .big { font-size: 18px; font-weight: 500; color: var(--fg-1); }
+  .meter-row .nums .of { font-size: 13px; color: var(--fg-3); }
+  .meter-row .nums .pct { display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+  .meter-row .nums .pct.ok { background: var(--live-wash); color: var(--live-ink); }
+  .meter-row .nums .pct.warn { background: var(--warn-wash); color: var(--warn-ink); }
+  .meter-row .nums .pct.over { background: var(--over-wash); color: var(--over-ink); }
+  .timeline { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 24px 28px; margin-bottom: 16px; box-shadow: var(--shadow-1); }
+  .invoices { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-1); }
+  .invoices header { padding: 18px 24px; border-bottom: 1px solid var(--border-1); display: flex; align-items: center; gap: 12px; }
+  .invoices header h3 { margin: 0; font: 600 14px var(--font-sans); }
+  .invoice-row { display: grid; grid-template-columns: 140px 1fr 140px 100px 32px; gap: 16px; padding: 14px 24px; border-top: 1px solid var(--border-1); align-items: center; cursor: pointer; transition: background 100ms; }
+  .invoice-row:hover { background: var(--paper-2); }
+  .invoice-row .when { font-family: var(--font-mono); font-feature-settings: 'tnum'; font-size: 13px; color: var(--fg-2); }
+  .invoice-row .what { font: 500 14px var(--font-sans); color: var(--fg-1); }
+  .invoice-row .what .sub { display: block; font: 400 12px var(--font-mono); color: var(--fg-3); margin-top: 2px; }
+  .invoice-row .amt { text-align: right; font-family: var(--font-mono); font-feature-settings: 'tnum'; font-weight: 500; color: var(--fg-1); }
+  .timeline-track { position: relative; height: 6px; background: var(--paper-3); border-radius: 999px; margin: 32px 0 12px; }
+  .timeline-track .filled { position: absolute; left: 0; top: 0; bottom: 0; width: 58%; background: var(--sass-pink); border-radius: 999px; }
+  .timeline-mark { position: absolute; top: -28px; transform: translateX(-50%); text-align: center; }
+  .timeline-mark .dot { width: 12px; height: 12px; border-radius: 999px; background: var(--paper); border: 2px solid var(--ink-2); margin: 0 auto; }
+  .timeline-mark.now .dot { border-color: var(--sass-pink); background: var(--sass-pink); box-shadow: 0 0 0 4px var(--sass-pink-tint); }
+  .timeline-mark.future .dot { border-color: var(--ink-3); border-style: dashed; }
+  .timeline-mark .lbl { font: 500 11px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 6px; white-space: nowrap; }
+  .timeline-mark .date { font: 400 12px var(--font-mono); font-feature-settings: 'tnum'; color: var(--fg-2); margin-top: 4px; white-space: nowrap; }
+  .alert { display: flex; gap: 12px; padding: 14px 20px; border-radius: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .alert.warn { background: var(--warn-wash); border: 1px solid color-mix(in oklab, var(--warn-base) 30%, transparent); color: var(--warn-ink); }
+  .alert .ico { width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+  .alert .body { font: 500 13px/1.5 var(--font-sans); }
+  .alert .body strong { font-weight: 600; }
+  .alert .body p { margin: 0; }
+  .alert .body .meta { font: 400 12px var(--font-mono); color: color-mix(in oklab, var(--warn-ink) 70%, transparent); margin-top: 4px; }
+</style>
+</head>
+<body data-portal data-screen-label="Portal · Usage">
+
+<div class="portal">
+
+  <div class="portal-head">
+    <div style="width: 32px; height: 32px; border-radius: 8px; background: var(--ink); color: var(--fg-inv); display: flex; align-items: center; justify-content: center; font: 700 14px var(--font-sans);">A</div>
+    <div class="integrator">Acme Robotics · Billing</div>
+    <div class="powered">
+      <span>powered by</span>
+      <img src="../../assets/logo-wordmark-mono.svg" height="14" alt="Saasy">
+    </div>
+  </div>
+
+  <div class="alert warn">
+    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l9 16H3z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".7" fill="currentColor"/>
+    </svg>
+    <div class="body">
+      <p><strong>You've used 82% of this period's <span style="font-family:var(--font-mono);">api_calls</span> Quota.</strong></p>
+      <p class="meta">Crossed the 80% threshold on 2026-05-29 14:02 UTC · 16 days remaining in period</p>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-row">
+      <div>
+        <div style="font: 500 11px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px;">Your Plan</div>
+        <h1 class="h1" style="font-size: 36px; line-height: 40px;">Pro · v3</h1>
+      </div>
+      <div style="margin-left: auto; display: flex; gap: 8px;">
+        <button class="btn btn-secondary">Download invoices</button>
+        <button class="btn btn-primary">Upgrade Plan</button>
+      </div>
+    </div>
+    <div class="hero-meta">
+      <div><div class="lbl">Period MTD</div><div class="val mono">USD 980.50</div></div>
+      <div><div class="lbl">Currency</div><div class="val mono">USD</div></div>
+      <div><div class="lbl">Cycle</div><div class="val">Monthly · anchor day 14</div></div>
+      <div><div class="lbl">Next invoice</div><div class="val mono">2026-06-14</div></div>
+    </div>
+  </div>
+
+  <div class="quota-card">
+    <h3>This period's usage</h3>
+    <div class="desc">Live Rollups across your Quotas. Updated continuously; finalised 24 hours after period close.</div>
+
+    <div class="meter-row">
+      <div class="name">API calls<span class="sub">api_calls</span></div>
+      <div>
+        <div class="quota" style="height: 8px;">
+          <div class="quota-fill warn" style="width: 82%;"></div>
+          <div style="position: absolute; top: -2px; bottom: -2px; left: 80%; width: 1px; background: var(--ink-3);"></div>
+        </div>
+      </div>
+      <div class="nums"><span class="big">820,012</span> <span class="of">/ 1,000,000</span><span class="pct warn">82%</span></div>
+    </div>
+
+    <div class="meter-row">
+      <div class="name">Storage<span class="sub">storage_gb</span></div>
+      <div><div class="quota" style="height: 8px;"><div class="quota-fill" style="width: 41%;"></div></div></div>
+      <div class="nums"><span class="big">412</span> <span class="of">/ 1,000 GB</span><span class="pct ok">41%</span></div>
+    </div>
+
+    <div class="meter-row">
+      <div class="name">Active users<span class="sub">unique_active_users</span></div>
+      <div><div class="quota" style="height: 8px;"><div class="quota-fill" style="width: 58%;"></div></div></div>
+      <div class="nums"><span class="big">5,820</span> <span class="of">/ 10,000</span><span class="pct ok">58%</span></div>
+    </div>
+
+    <div class="meter-row">
+      <div class="name">Seats<span class="sub">seats · time_weighted_last</span></div>
+      <div><div class="quota" style="height: 8px;"><div class="quota-fill" style="width: 48%;"></div></div></div>
+      <div class="nums"><span class="big">48</span> <span class="of">/ 100</span><span class="pct ok">48%</span></div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <h3 style="margin: 0 0 4px; font: 600 14px var(--font-sans); color: var(--fg-1);">Period</h3>
+    <div style="font: 400 13px var(--font-sans); color: var(--fg-2);">Your billing period runs monthly, anchored to the 14th. Late-arriving Events are reconciled within 24 hours of period close.</div>
+    <div class="timeline-track">
+      <div class="filled"></div>
+      <div class="timeline-mark" style="left: 0%;"><div class="dot"></div><div class="lbl">Start</div><div class="date">May 14</div></div>
+      <div class="timeline-mark now" style="left: 58%;"><div class="dot"></div><div class="lbl">Now</div><div class="date">May 31</div></div>
+      <div class="timeline-mark future" style="left: 96%;"><div class="dot"></div><div class="lbl">Period close</div><div class="date">Jun 14</div></div>
+      <div class="timeline-mark future" style="left: 100%;"><div class="dot"></div><div class="lbl">Final close</div><div class="date">Jun 15</div></div>
+    </div>
+  </div>
+
+  <div class="invoices">
+    <header>
+      <h3>Recent invoices</h3>
+      <span class="capsule" style="margin-left: auto;">Last 6 months</span>
+    </header>
+    <div class="invoice-row">
+      <div class="when">2026-04-14</div>
+      <div class="what">April 2026 invoice<span class="sub">inv_8c4a · Pro v3 · USD</span></div>
+      <div class="amt">USD 1,140.40</div>
+      <div><span class="capsule live"><span class="live-dot"></span>Paid</span></div>
+      <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--fg-3);"><path d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+    <div class="invoice-row">
+      <div class="when">2026-03-14</div>
+      <div class="what">March 2026 invoice<span class="sub">inv_7b13 · Pro v3 · USD</span></div>
+      <div class="amt">USD 980.50</div>
+      <div><span class="capsule live"><span class="live-dot"></span>Paid</span></div>
+      <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--fg-3);"><path d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+    <div class="invoice-row">
+      <div class="when">2026-02-14</div>
+      <div class="what">February 2026 invoice<span class="sub">inv_6a02 · Pro v3 · USD · includes prorated upgrade from Starter</span></div>
+      <div class="amt">USD 1,387.21</div>
+      <div><span class="capsule live"><span class="live-dot"></span>Paid</span></div>
+      <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--fg-3);"><path d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+    <div class="invoice-row">
+      <div class="when">2026-01-14</div>
+      <div class="what">January 2026 invoice<span class="sub">inv_4f81 · Starter v1 · USD</span></div>
+      <div class="amt">USD 124.00</div>
+      <div><span class="capsule live"><span class="live-dot"></span>Paid</span></div>
+      <div><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--fg-3);"><path d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+  </div>
+
+</div>
+
+</body></html>

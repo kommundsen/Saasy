@@ -1,0 +1,178 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Saasy · Ops Console</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { background: var(--ink); color: var(--fg-inv); font-family: var(--font-mono); }
+  .ops { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
+  .ops-bar { background: #0a0a0a; border-bottom: 1px solid #2a2a2a; padding: 10px 20px; display: flex; align-items: center; gap: 16px; font: 500 13px var(--font-mono); }
+  .ops-bar .brand { display: flex; align-items: center; gap: 8px; color: var(--paper); }
+  .ops-bar .brand strong { font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.01em; font-size: 15px; }
+  .ops-bar .ctx { color: var(--ink-3); }
+  .ops-bar .ctx strong { color: var(--paper); font-weight: 500; }
+  .ops-bar .live-tag { background: var(--live); color: var(--ink); padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 11px; letter-spacing: 0.06em; display: flex; align-items: center; gap: 6px; }
+  .ops-bar .live-tag::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: var(--ink); animation: dot-pulse 2s ease-out infinite; }
+  .ops-bar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--ink-3); }
+  .ops-bar .right strong { color: var(--paper); }
+
+  .ops-body { padding: 24px; display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-content: start; }
+  .panel { background: #111; border: 1px solid #2a2a2a; border-radius: 8px; padding: 18px 20px; }
+  .panel h3 { font: 600 12px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; }
+  .panel h3 .live { display: inline-block; margin-left: 8px; padding: 1px 6px; border-radius: 4px; background: rgba(58,184,108,0.15); color: var(--live); font-size: 10px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .stat { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; }
+  .stat .lbl { font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .stat .val { font: 500 28px/1.1 var(--font-mono); font-feature-settings: 'tnum'; color: var(--paper); }
+  .stat .delta { font-size: 11px; margin-top: 6px; }
+  .stat .delta.up { color: var(--live); }
+  .stat .delta.down { color: var(--warn); }
+  .stat .delta.alarm { color: var(--sass-pink); }
+
+  .sparkline { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .spark-row { display: grid; grid-template-columns: 180px 1fr 80px; gap: 14px; align-items: center; padding: 10px 0; border-top: 1px solid #2a2a2a; }
+  .spark-row:first-child { border-top: none; }
+  .spark-row .name { color: var(--paper); font-size: 13px; }
+  .spark-row .name span { color: var(--ink-3); font-size: 11px; display: block; margin-top: 2px; }
+  .spark-row .val { text-align: right; color: var(--paper); font-feature-settings: 'tnum'; font-size: 14px; }
+  .spark { display: flex; align-items: flex-end; gap: 2px; height: 32px; }
+  .spark span { flex: 1; background: var(--ink-3); border-radius: 1px; min-height: 2px; }
+  .spark span.hot { background: var(--sass-pink); }
+
+  .events { font-size: 12px; color: var(--ink-3); max-height: 380px; overflow: auto; }
+  .ev { display: grid; grid-template-columns: 90px 90px 1fr; gap: 12px; padding: 6px 0; border-top: 1px solid #1a1a1a; }
+  .ev:first-child { border-top: none; }
+  .ev .t { color: var(--ink-3); font-feature-settings: 'tnum'; }
+  .ev .k { font-weight: 500; }
+  .ev .k.ok { color: var(--live); }
+  .ev .k.warn { color: var(--warn); }
+  .ev .k.over { color: var(--sass-pink); }
+  .ev .body { color: var(--paper); }
+  .ev .body strong { color: var(--ink-3); font-weight: 400; }
+
+  .runbook { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 6px; padding: 14px 16px; margin-top: 12px; }
+  .runbook .lbl { font-size: 10px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .runbook .title { color: var(--paper); font-size: 13px; margin-bottom: 4px; }
+  .runbook .desc { color: var(--ink-3); font-size: 12px; line-height: 1.5; }
+  .runbook .actions { margin-top: 10px; display: flex; gap: 8px; }
+  .runbook button { background: transparent; border: 1px solid #2a2a2a; color: var(--paper); padding: 6px 10px; font: 500 11px var(--font-mono); border-radius: 4px; cursor: pointer; letter-spacing: 0.04em; }
+  .runbook button:hover { border-color: var(--sass-pink); color: var(--sass-pink); }
+  .runbook button.danger { color: var(--sass-pink); border-color: rgba(229,77,114,0.3); }
+  .runbook button.danger:hover { background: rgba(229,77,114,0.1); }
+
+  .timeline-bar { display: flex; gap: 1px; height: 40px; align-items: flex-end; margin-bottom: 8px; }
+  .timeline-bar span { flex: 1; background: var(--ink-3); min-height: 2px; border-radius: 1px; }
+  .timeline-bar span.hot { background: var(--warn); }
+  .timeline-bar span.alarm { background: var(--sass-pink); }
+  .timeline-axis { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-3); font-feature-settings: 'tnum'; }
+
+  .integrator-list { font-size: 12px; }
+  .igr { display: grid; grid-template-columns: 24px 1fr 80px 80px; gap: 12px; padding: 8px 0; border-top: 1px solid #1a1a1a; align-items: center; }
+  .igr:first-child { border-top: none; }
+  .igr .pulse { width: 8px; height: 8px; border-radius: 999px; }
+  .igr .pulse.live { background: var(--live); box-shadow: 0 0 0 3px rgba(58,184,108,0.15); }
+  .igr .pulse.warn { background: var(--warn); }
+  .igr .pulse.over { background: var(--sass-pink); animation: dot-pulse 1.4s ease-out infinite; }
+  .igr .name { color: var(--paper); }
+  .igr .name span { color: var(--ink-3); display: block; font-size: 11px; }
+  .igr .num { text-align: right; font-feature-settings: 'tnum'; color: var(--paper); }
+  .igr .num.warn { color: var(--warn); }
+  .igr .num.over { color: var(--sass-pink); }
+</style>
+</head>
+<body data-screen-label="Ops · Health">
+
+<div class="ops">
+  <div class="ops-bar">
+    <div class="brand">
+      <img src="../../assets/logo-mark.svg" width="22" height="22" alt="">
+      <strong>Saasy</strong>
+      <span style="color: var(--ink-3);">/ ops</span>
+    </div>
+    <span class="ctx">env <strong>prod-us-west-2</strong></span>
+    <span class="ctx">cluster <strong>saasy-prod-3</strong></span>
+    <span class="live-tag">LIVE</span>
+    <div class="right">
+      <span>oncall <strong>k.ortega</strong></span>
+      <span>·</span>
+      <span>shift ends <strong>14:00 PT</strong></span>
+      <span>·</span>
+      <span>2026-05-31 11:24:08 UTC</span>
+    </div>
+  </div>
+
+  <div class="ops-body">
+
+    <div class="panel" style="grid-column: 1 / -1;">
+      <h3>Platform health <span class="live">LIVE</span></h3>
+      <div class="stat-grid">
+        <div class="stat"><div class="lbl">Events ingested · 1m</div><div class="val">142,891</div><div class="delta up">+4.2% vs 7d avg</div></div>
+        <div class="stat"><div class="lbl">Rollup p99 latency</div><div class="val">312ms</div><div class="delta up">SLO 500ms</div></div>
+        <div class="stat"><div class="lbl">Webhook delivery 24h</div><div class="val">98.4%</div><div class="delta down">SLO 99.0%</div></div>
+        <div class="stat"><div class="lbl">DLQ depth</div><div class="val">12</div><div class="delta alarm">▲ 12 in 1h</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Late Event volume · last 30 days</h3>
+      <div class="timeline-bar">
+        <span style="height: 22%;"></span><span style="height: 28%;"></span><span style="height: 19%;"></span>
+        <span style="height: 31%;"></span><span style="height: 24%;"></span><span style="height: 38%;"></span>
+        <span style="height: 27%;"></span><span style="height: 22%;"></span><span style="height: 41%;"></span>
+        <span style="height: 33%;"></span><span style="height: 29%;"></span><span style="height: 36%;"></span>
+        <span style="height: 24%;"></span><span class="hot" style="height: 68%;"></span><span class="hot" style="height: 78%;"></span>
+        <span class="hot" style="height: 92%;"></span><span class="alarm" style="height: 100%;"></span><span class="hot" style="height: 71%;"></span>
+        <span class="hot" style="height: 64%;"></span><span style="height: 39%;"></span><span style="height: 32%;"></span>
+        <span style="height: 28%;"></span><span style="height: 33%;"></span><span style="height: 21%;"></span>
+        <span style="height: 26%;"></span><span style="height: 24%;"></span><span style="height: 30%;"></span>
+        <span style="height: 22%;"></span><span style="height: 28%;"></span><span style="height: 31%;"></span>
+      </div>
+      <div class="timeline-axis"><span>May 02</span><span>May 16</span><span>May 31</span></div>
+      <div style="margin-top: 14px; font-size: 12px; color: var(--ink-3); line-height: 1.6;">
+        Spike on <strong style="color: var(--paper); font-weight: 500;">May 19</strong> — 31,402 Late Events from a single Integrator (<strong style="color: var(--paper); font-weight: 500;">igr_bramble</strong>) reprocessing a 14-day backfill. All within window; no Final Close adjustments required.
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Integrator saturation</h3>
+      <div class="integrator-list">
+        <div class="igr"><span class="pulse live"></span><span class="name">igr_acme<span>Acme Robotics · prod</span></span><span class="num">412M ev/d</span><span class="num">42%</span></div>
+        <div class="igr"><span class="pulse live"></span><span class="name">igr_driftwood<span>Driftwood Studio · prod</span></span><span class="num">128M ev/d</span><span class="num">18%</span></div>
+        <div class="igr"><span class="pulse warn"></span><span class="name">igr_bramble<span>Bramble Mfg · prod</span></span><span class="num warn">88M ev/d</span><span class="num warn">82%</span></div>
+        <div class="igr"><span class="pulse live"></span><span class="name">igr_estuary<span>Estuary Logistics · prod</span></span><span class="num">52M ev/d</span><span class="num">28%</span></div>
+        <div class="igr"><span class="pulse over"></span><span class="name">igr_conduit<span>Conduit Labs · prod</span></span><span class="num over">14M ev/d</span><span class="num over">114%</span></div>
+        <div class="igr"><span class="pulse live"></span><span class="name">igr_foreshore<span>Foreshore Health · prod</span></span><span class="num">9M ev/d</span><span class="num">31%</span></div>
+      </div>
+      <div class="runbook">
+        <div class="lbl">Runbook · ADR-0011</div>
+        <div class="title">igr_conduit at 114% of provisioned ingest</div>
+        <div class="desc">Customer-side spike. Ingest is autoscaling but Rollup workers will lag. Decide: bump worker pool, or contact Integrator about expected sustained load.</div>
+        <div class="actions">
+          <button>view runbook</button>
+          <button>scale workers ×2</button>
+          <button class="danger">page integrator</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" style="grid-column: 1 / -1;">
+      <h3>Recent Events · ingest tail</h3>
+      <div class="events">
+        <div class="ev"><span class="t">11:24:08.412</span><span class="k ok">RECV</span><span class="body">igr_acme · evt_8a4f1c · usage <strong>{kind:api_calls, qty:1}</strong> · idem_ok</span></div>
+        <div class="ev"><span class="t">11:24:08.408</span><span class="k ok">ROLL</span><span class="body">sub_a01ff344 · api_calls 412,008 → 412,009 · committed in 18ms</span></div>
+        <div class="ev"><span class="t">11:24:08.401</span><span class="k ok">RECV</span><span class="body">igr_driftwood · evt_3c9b22 · usage <strong>{kind:storage_gb, qty:0.0014}</strong></span></div>
+        <div class="ev"><span class="t">11:24:08.388</span><span class="k warn">LATE</span><span class="body">igr_bramble · evt_b81c4f · ts=2026-05-30T22:18Z (received +14h) · within window</span></div>
+        <div class="ev"><span class="t">11:24:08.302</span><span class="k over">FIRE</span><span class="body">sub_b22e91a4 · threshold <strong>0.80 api_calls</strong> crossed → webhook usage.threshold.crossed enqueued</span></div>
+        <div class="ev"><span class="t">11:24:08.298</span><span class="k ok">RECV</span><span class="body">igr_acme · evt_71ee03 · usage <strong>{kind:unique_active_users, user:u_44a2}</strong> · idem_ok (set semantic)</span></div>
+        <div class="ev"><span class="t">11:24:08.291</span><span class="k ok">HOOK</span><span class="body">igr_acme/saasy → 200 in 312ms · invoice.generated · inv_8c4a</span></div>
+        <div class="ev"><span class="t">11:24:08.244</span><span class="k warn">DUPL</span><span class="body">igr_conduit · evt_f01122 · idempotency-key collision (3rd in 60s) · payload-hash matches · safe</span></div>
+        <div class="ev"><span class="t">11:24:08.221</span><span class="k ok">RECV</span><span class="body">igr_estuary · evt_a4029e · usage <strong>{kind:seats, qty:48, agg:time_weighted_last}</strong></span></div>
+        <div class="ev"><span class="t">11:24:08.198</span><span class="k over">DLQ </span><span class="body">igr_bramble/billing → 502 after 8 retries · webhook usage.threshold.crossed · sub_b22e91a4 · <strong>requires manual replay</strong></span></div>
+        <div class="ev"><span class="t">11:24:08.190</span><span class="k ok">ROLL</span><span class="body">sub_d44a019b · storage_gb 580.0 → 580.1 · committed in 12ms</span></div>
+        <div class="ev"><span class="t">11:24:08.181</span><span class="k ok">RECV</span><span class="body">igr_acme · evt_92bb01 · usage <strong>{kind:api_calls, qty:1}</strong> · idem_ok</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body></html>

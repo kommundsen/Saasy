@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Saasy · Admin Dashboard</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { background: var(--paper); }
+  .layout { display: flex; }
+  main { flex: 1; padding: 24px 32px; max-width: var(--frame-max); }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" src="Icons.jsx"></script>
+<script type="text/babel" src="Atoms.jsx"></script>
+<script type="text/babel" src="Shell.jsx"></script>
+<script type="text/babel" src="Screens.jsx"></script>
+<script type="text/babel">
+  const { useState } = React;
+  function App() {
+    const [route, setRoute] = useState("subs");
+    const [openRow, setOpenRow] = useState(null);
+    const [kind, setKind] = useState("sandbox");
+    return (
+      <div data-screen-label={`Admin · ${route}`}>
+        <TopBar integrator="Acme Robotics" kind={kind} onSwitch={() => setKind(kind === "sandbox" ? "production" : "sandbox")} />
+        <StatusBar kind={kind} />
+        <div className="layout">
+          <Sidebar active={route} onNav={(id) => { setRoute(id); setOpenRow(null); }} />
+          <main>
+            {route === "subs" && !openRow && <SubsList onOpen={r => setOpenRow(r)} />}
+            {route === "subs" && openRow && <SubsDetail row={openRow} onBack={() => setOpenRow(null)} />}
+            {route === "plans" && <Plans />}
+            {route === "webhooks" && <Webhooks />}
+            {!["subs","plans","webhooks"].includes(route) && (
+              <div className="card" style={{ padding: 48, textAlign: "center" }}>
+                <h2 className="h2" style={{ marginBottom: 8 }}>{route} — view scaffolded</h2>
+                <p className="body fg-2">This UI kit demonstrates Subscriptions, Plans, and Webhooks. Other routes follow the same chrome.</p>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body></html>

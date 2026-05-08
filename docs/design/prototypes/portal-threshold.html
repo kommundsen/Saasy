@@ -1,0 +1,312 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Saasy · Approaching threshold</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  body { background: var(--paper-2); }
+  .portal { max-width: 1080px; margin: 0 auto; padding: 32px 28px 80px; }
+
+  .integrator-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  .integrator-bar .logo { width: 32px; height: 32px; border-radius: 8px; background: var(--ink); color: var(--fg-inv); display: flex; align-items: center; justify-content: center; font: 700 14px var(--font-sans); }
+  .integrator-bar .ttl { font: 600 18px var(--font-sans); color: var(--fg-1); letter-spacing: -0.01em; }
+  .integrator-bar .powered { margin-left: auto; display: flex; align-items: center; gap: 8px; color: var(--fg-3); font: 400 12px var(--font-sans); }
+  .integrator-bar .powered img { opacity: 0.6; }
+  .scenario-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--ink); color: var(--fg-inv); border-radius: 999px; font: 500 12px/1 var(--font-mono); margin-bottom: 24px; width: fit-content; }
+  .scenario-bar .step { padding: 4px 10px; border-radius: 999px; cursor: pointer; transition: background 120ms; color: var(--ink-3); }
+  .scenario-bar .step.active { background: var(--sass-pink); color: var(--ink); }
+  .scenario-bar .step:hover { color: var(--paper); }
+  .scenario-bar .step.active:hover { color: var(--ink); }
+  .scenario-bar .label { color: var(--ink-3); padding-right: 4px; letter-spacing: 0.06em; text-transform: uppercase; font-size: 10px; }
+
+  .alert { display: flex; gap: 14px; padding: 18px 22px; border-radius: 14px; align-items: flex-start; margin-bottom: 20px; transition: all 220ms ease-out; }
+  .alert.warn { background: var(--warn-wash); border: 1px solid color-mix(in oklab, var(--warn-base) 30%, transparent); color: var(--warn-ink); }
+  .alert.over { background: var(--over-wash); border: 1px solid color-mix(in oklab, var(--over-base) 35%, transparent); color: var(--over-ink); }
+  .alert .ico { width: 24px; height: 24px; flex-shrink: 0; margin-top: 1px; }
+  .alert .body { flex: 1; font: 500 14px/1.5 var(--font-sans); }
+  .alert .body strong { font-weight: 600; }
+  .alert .body p { margin: 0; }
+  .alert .body .meta { font: 400 12px var(--font-mono); margin-top: 6px; opacity: 0.8; }
+  .alert .body .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .alert .body .actions button { padding: 6px 12px; border-radius: 6px; border: 1px solid currentColor; background: transparent; color: inherit; font: 500 12px var(--font-sans); cursor: pointer; }
+  .alert.warn .body .actions button.primary { background: var(--warn-ink); color: var(--paper); border-color: transparent; }
+  .alert.over .body .actions button.primary { background: var(--over-ink); color: var(--paper); border-color: transparent; }
+  .alert .body .actions button.primary span { color: var(--paper); }
+
+  .hero { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 28px; margin-bottom: 20px; box-shadow: var(--shadow-1); }
+  .hero-head { display: flex; align-items: flex-end; gap: 24px; margin-bottom: 20px; flex-wrap: wrap; }
+  .hero-head .h1 { font: 600 36px/1.1 var(--font-sans); letter-spacing: -0.02em; margin: 0; }
+  .hero-head .lbl { font: 500 11px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding-top: 20px; border-top: 1px solid var(--border-1); }
+  .hero-meta .lbl { font: 500 11px/1 var(--font-mono); color: var(--fg-3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .hero-meta .val { font: 500 15px var(--font-sans); color: var(--fg-1); }
+  .hero-meta .val.mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+
+  .meters { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; padding: 24px 28px; box-shadow: var(--shadow-1); }
+  .meters h3 { margin: 0 0 4px; font: 600 14px var(--font-sans); }
+  .meters .desc { font: 400 13px var(--font-sans); color: var(--fg-2); margin-bottom: 16px; }
+  .meter-row { display: grid; grid-template-columns: 200px 1fr 200px; gap: 20px; align-items: center; padding: 14px 0; border-top: 1px solid var(--border-1); }
+  .meter-row:first-of-type { border-top: none; }
+  .meter-row .name { font: 500 14px var(--font-sans); color: var(--fg-1); }
+  .meter-row .name span { display: block; font: 400 12px var(--font-mono); color: var(--fg-3); margin-top: 2px; }
+  .meter-row .nums { text-align: right; font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+  .meter-row .nums .big { font-size: 18px; font-weight: 500; color: var(--fg-1); transition: color 220ms; }
+  .meter-row .nums .big.warn { color: var(--warn-ink); }
+  .meter-row .nums .big.over { color: var(--over-ink); }
+  .meter-row .nums .of { font-size: 13px; color: var(--fg-3); }
+  .meter-row .nums .pct { display: inline-block; margin-left: 10px; padding: 2px 8px; border-radius: 6px; font-size: 12px; }
+  .meter-row .nums .pct.ok { background: var(--live-wash); color: var(--live-ink); }
+  .meter-row .nums .pct.warn { background: var(--warn-wash); color: var(--warn-ink); }
+  .meter-row .nums .pct.over { background: var(--over-wash); color: var(--over-ink); }
+  .meter-row .quota { transition: all 220ms ease-out; }
+  .meter-row .quota-fill { transition: width 600ms cubic-bezier(.4,0,.2,1); }
+
+  .modal-bg { position: fixed; inset: 0; background: rgba(20,18,17,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(4px); animation: bg-in 180ms ease-out; padding: 24px; }
+  @keyframes bg-in { from { opacity: 0; } to { opacity: 1; } }
+  .modal { background: var(--paper); border: 1px solid var(--border-1); border-radius: 16px; box-shadow: var(--shadow-3); width: 100%; max-width: 720px; padding: 32px; animation: m-in 220ms cubic-bezier(.2,.8,.2,1); }
+  @keyframes m-in { from { transform: translateY(8px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+  .modal h2 { font: 600 22px var(--font-sans); margin: 0 0 6px; letter-spacing: -0.01em; }
+  .modal .sub { font: 400 14px var(--font-sans); color: var(--fg-2); margin-bottom: 24px; }
+
+  .plan-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .plan-card { border: 2px solid var(--border-1); border-radius: 12px; padding: 18px; cursor: pointer; transition: all 140ms; background: var(--paper); }
+  .plan-card:hover { border-color: var(--ink-3); }
+  .plan-card.selected { border-color: var(--sass-pink); background: var(--sass-pink-wash); }
+  .plan-card.current { border-style: dashed; cursor: default; }
+  .plan-card.current:hover { border-color: var(--border-1); }
+  .plan-card .row1 { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+  .plan-card .name { font: 600 16px var(--font-sans); color: var(--fg-1); }
+  .plan-card .v { font: 400 12px var(--font-mono); color: var(--fg-3); }
+  .plan-card .badge { margin-left: auto; padding: 2px 8px; border-radius: 6px; font: 500 11px var(--font-mono); letter-spacing: 0.04em; }
+  .plan-card .badge.cur { background: var(--paper-3); color: var(--fg-2); }
+  .plan-card .badge.rec { background: var(--sass-pink); color: var(--fg-inv); }
+  .plan-card .price { font: 500 22px var(--font-mono); color: var(--fg-1); margin-bottom: 4px; font-feature-settings: 'tnum'; }
+  .plan-card .price small { font-size: 13px; color: var(--fg-2); font-weight: 400; }
+  .plan-card .quota { font: 400 13px var(--font-sans); color: var(--fg-2); margin-bottom: 10px; }
+  .plan-card .quota .b { font-family: var(--font-mono); color: var(--fg-1); }
+  .plan-card ul { margin: 0; padding-left: 18px; font: 400 12px/1.6 var(--font-sans); color: var(--fg-2); }
+
+  .modal-foot { display: flex; align-items: center; gap: 10px; padding-top: 20px; border-top: 1px solid var(--border-1); }
+  .modal-foot .caption { font: 400 12px var(--font-mono); color: var(--fg-3); }
+  .modal-foot .right { margin-left: auto; display: flex; gap: 8px; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--fg-inv); padding: 14px 20px 14px 16px; border-radius: 10px; box-shadow: var(--shadow-3); display: flex; align-items: center; gap: 10px; font: 500 14px var(--font-sans); z-index: 50; animation: slide-up 220ms ease-out; }
+  .toast .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--live); animation: dot-pulse 2s ease-out infinite; }
+  .toast .id { font-family: var(--font-mono); color: var(--ink-3); margin-left: 6px; }
+  @keyframes slide-up { from { transform: translate(-50%, 12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body data-portal data-screen-label="Prototype · Approaching threshold">
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const Stroke = ({d, size=20}) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+       dangerouslySetInnerHTML={{__html:d}} />
+);
+const I = {
+  warn: '<path d="M12 3l9 16H3z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".7" fill="currentColor"/>',
+  over: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><circle cx="12" cy="16" r=".8" fill="currentColor"/>',
+  check: '<path d="M5 13l4 4L19 7"/>',
+  chev: '<path d="m9 18 6-6-6-6"/>',
+};
+
+// Steps: 0=fine, 1=80% threshold crossed (warn alert), 2=upgrade modal open, 3=upgraded (back to fine, on Enterprise)
+function App() {
+  const [step, setStep] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  // when step changes to 2, open modal; reset modal when leaving via prev/next
+  useEffect(() => {
+    setShowModal(step === 2);
+  }, [step]);
+
+  // step 3: show "plan changed" toast for 5s
+  useEffect(() => {
+    if (step === 3) {
+      setShowToast(true);
+      const t = setTimeout(() => setShowToast(false), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [step]);
+
+  const upgraded = step === 3;
+  const overuse  = step >= 1 && step <= 2;
+  const apiPct = overuse ? 82 : upgraded ? 9 : 41;
+  const apiVal = overuse ? 820012 : upgraded ? 820012 : 412008;
+  const apiQuota = upgraded ? 50000000 : 1000000;
+
+  const planLabel   = upgraded ? "Enterprise · v2" : "Pro · v3";
+  const planPriceMtd = upgraded ? "USD 4,999.00 · prorated" : "USD 980.50";
+
+  return (
+    <div className="portal">
+      <div className="integrator-bar">
+        <div className="logo">A</div>
+        <div className="ttl">Acme Robotics · Billing</div>
+        <div className="powered">
+          <span>powered by</span>
+          <img src="../assets/logo-wordmark-mono.svg" height="14" alt="Saasy"/>
+        </div>
+      </div>
+
+      <div className="scenario-bar">
+        <span className="label">Scenario</span>
+        <span className={`step ${step===0?'active':''}`} onClick={()=>setStep(0)}>1 · Healthy</span>
+        <span className={`step ${step===1?'active':''}`} onClick={()=>setStep(1)}>2 · 80% crossed</span>
+        <span className={`step ${step===2?'active':''}`} onClick={()=>setStep(2)}>3 · Upgrade</span>
+        <span className={`step ${step===3?'active':''}`} onClick={()=>setStep(3)}>4 · Upgraded</span>
+      </div>
+
+      {step === 1 && (
+        <div className="alert warn">
+          <div className="ico"><Stroke d={I.warn} size={22}/></div>
+          <div className="body">
+            <p><strong>You've used 82% of this period's <span style={{fontFamily:'var(--font-mono)'}}>api_calls</span> Quota.</strong></p>
+            <p style={{marginTop:4}}>You won't be cut off — Saasy never blocks your traffic. Overage is billed at USD 0.001 per call past 1M, or you can move to a Plan with more headroom.</p>
+            <div className="meta">Crossed at 2026-05-29 14:02 UTC · 16 days remaining in period</div>
+            <div className="actions">
+              <button className="primary" onClick={()=>setStep(2)}>Compare Plans <span>→</span></button>
+              <button>Estimate overage</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {upgraded && (
+        <div className="alert" style={{background:'var(--live-wash)', borderColor:'color-mix(in oklab, var(--live-base) 30%, transparent)', color:'var(--live-ink)'}}>
+          <div className="ico"><Stroke d={I.check} size={22}/></div>
+          <div className="body">
+            <p><strong>You're on Enterprise · v2.</strong> Plenty of headroom.</p>
+            <div className="meta">Plan changed 2 minutes ago · prorated against the current Period · webhook <span style={{fontWeight:600}}>subscription.changed</span> fired to Acme</div>
+          </div>
+        </div>
+      )}
+
+      <div className="hero">
+        <div className="hero-head">
+          <div>
+            <div className="lbl">Your Plan</div>
+            <h1 className="h1">{planLabel}</h1>
+          </div>
+          <div style={{marginLeft:'auto', display:'flex', gap:8}}>
+            <button className="btn btn-secondary">Download invoices</button>
+            {!upgraded && <button className="btn btn-primary" onClick={()=>setStep(2)}>Upgrade Plan</button>}
+            {upgraded && <button className="btn btn-secondary">Manage Plan</button>}
+          </div>
+        </div>
+        <div className="hero-meta">
+          <div><div className="lbl">Period MTD</div><div className="val mono">{planPriceMtd}</div></div>
+          <div><div className="lbl">Currency</div><div className="val mono">USD</div></div>
+          <div><div className="lbl">Cycle</div><div className="val">Monthly · anchor day 14</div></div>
+          <div><div className="lbl">Next invoice</div><div className="val mono">2026-06-14</div></div>
+        </div>
+      </div>
+
+      <div className="meters">
+        <h3>This period's usage</h3>
+        <div className="desc">Live Rollups across your Quotas. Saasy uses Soft Enforcement — you'll never be blocked, but threshold crossings notify both you and your team.</div>
+
+        <div className="meter-row">
+          <div className="name">API calls<span>api_calls</span></div>
+          <div>
+            <div className="quota" style={{height:8, position:'relative'}}>
+              <div className={`quota-fill ${apiPct>=100?'over':apiPct>=80?'warn':''}`} style={{width: Math.min(apiPct,100)+'%'}}></div>
+              {!upgraded && <div style={{position:'absolute', top:-2, bottom:-2, left:'80%', width:1, background:'var(--ink-3)'}}></div>}
+            </div>
+          </div>
+          <div className="nums">
+            <span className={`big ${apiPct>=100?'over':apiPct>=80?'warn':''}`}>{apiVal.toLocaleString()}</span> <span className="of">/ {apiQuota.toLocaleString()}</span>
+            <span className={`pct ${apiPct>=100?'over':apiPct>=80?'warn':'ok'}`}>{apiPct}%</span>
+          </div>
+        </div>
+
+        <div className="meter-row">
+          <div className="name">Storage<span>storage_gb</span></div>
+          <div><div className="quota" style={{height:8}}><div className="quota-fill" style={{width: upgraded ? '5%' : '41%'}}></div></div></div>
+          <div className="nums"><span className="big">412</span> <span className="of">/ {upgraded ? '8,000' : '1,000'} GB</span><span className="pct ok">{upgraded ? '5%' : '41%'}</span></div>
+        </div>
+
+        <div className="meter-row">
+          <div className="name">Active users<span>unique_active_users</span></div>
+          <div><div className="quota" style={{height:8}}><div className="quota-fill" style={{width: upgraded ? '6%' : '58%'}}></div></div></div>
+          <div className="nums"><span className="big">5,820</span> <span className="of">/ {upgraded ? '100,000' : '10,000'}</span><span className="pct ok">{upgraded ? '6%' : '58%'}</span></div>
+        </div>
+
+        <div className="meter-row">
+          <div className="name">Seats<span>seats · time_weighted_last</span></div>
+          <div><div className="quota" style={{height:8}}><div className="quota-fill" style={{width: upgraded ? '10%' : '48%'}}></div></div></div>
+          <div className="nums"><span className="big">48</span> <span className="of">/ {upgraded ? '500' : '100'}</span><span className="pct ok">{upgraded ? '10%' : '48%'}</span></div>
+        </div>
+      </div>
+
+      {showModal && <UpgradeModal onClose={()=>setStep(1)} onConfirm={()=>setStep(3)} />}
+
+      {showToast && (
+        <div className="toast">
+          <span className="dot"></span>
+          Plan changed to Enterprise · v2
+          <span className="id">subscription.changed</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UpgradeModal({ onClose, onConfirm }) {
+  const [picked, setPicked] = useState('enterprise');
+  return (
+    <div className="modal-bg" onClick={e=>{ if(e.target===e.currentTarget) onClose(); }}>
+      <div className="modal">
+        <h2>Choose a Plan</h2>
+        <div className="sub">Plan changes prorate against your current Period. The change takes effect immediately and no Events are dropped.</div>
+
+        <div className="plan-cards">
+          <div className="plan-card current">
+            <div className="row1">
+              <span className="name">Pro</span><span className="v">v3</span>
+              <span className="badge cur">Current</span>
+            </div>
+            <div className="price">USD 499<small> /mo + per-seat + metered</small></div>
+            <div className="quota">api_calls · <span className="b">1M</span> Quota · USD 0.001/call overage</div>
+            <ul>
+              <li>1,000 GB storage</li>
+              <li>10,000 active users</li>
+              <li>100 seats included</li>
+            </ul>
+          </div>
+          <div className={`plan-card ${picked==='enterprise'?'selected':''}`} onClick={()=>setPicked('enterprise')}>
+            <div className="row1">
+              <span className="name">Enterprise</span><span className="v">v2</span>
+              <span className="badge rec">Recommended</span>
+            </div>
+            <div className="price">USD 4,999<small> /mo + per-seat</small></div>
+            <div className="quota">api_calls · <span className="b">50M</span> Quota included · no overage</div>
+            <ul>
+              <li>8,000 GB storage</li>
+              <li>100,000 active users</li>
+              <li>500 seats included · USD 24 / extra seat</li>
+              <li>Annual commitment available — talk to sales for 18% off</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="modal-foot">
+          <span className="caption">Plan Version transitions are recorded in <span style={{color:'var(--fg-1)'}}>Audit Log</span> and fire <span style={{color:'var(--fg-1)'}}>subscription.changed</span>.</span>
+          <div className="right">
+            <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" onClick={onConfirm}>Confirm change to Enterprise</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body></html>

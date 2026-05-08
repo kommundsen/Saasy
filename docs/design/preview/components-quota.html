@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Quota meters</title>
+<link rel="stylesheet" href="_card.css"></head><body>
+<div class="card-frame col gap-4">
+  <div class="col gap-2">
+    <div class="row gap-3" style="align-items:baseline">
+      <span class="ui">api_calls</span>
+      <span class="mono tabular fg-2" style="margin-left:auto">412,008&nbsp;/&nbsp;1,000,000</span>
+      <span class="mono-num tabular" style="color:var(--live)">41%</span>
+    </div>
+    <div class="quota"><div class="quota-fill" style="width:41%"></div></div>
+  </div>
+  <div class="col gap-2">
+    <div class="row gap-3" style="align-items:baseline">
+      <span class="ui">storage_gb</span>
+      <span class="mono tabular fg-2" style="margin-left:auto">820&nbsp;/&nbsp;1,000</span>
+      <span class="mono-num tabular" style="color:var(--warn-ink)">82%</span>
+    </div>
+    <div class="quota">
+      <div class="quota-fill warn" style="width:82%"></div>
+      <div style="position:absolute;top:-2px;bottom:-2px;left:80%;width:1px;background:var(--ink-3)"></div>
+    </div>
+    <div class="caption" style="display:flex;gap:8px"><span class="capsule warn">⚠&nbsp;80%</span><span style="margin-top:3px">Threshold crossed at 14:02 UTC. Webhook delivered.</span></div>
+  </div>
+  <div class="col gap-2">
+    <div class="row gap-3" style="align-items:baseline">
+      <span class="ui">unique_active_users</span>
+      <span class="mono tabular fg-2" style="margin-left:auto">11,420&nbsp;/&nbsp;10,000</span>
+      <span class="mono-num tabular" style="color:var(--over-ink)">114%</span>
+    </div>
+    <div class="quota">
+      <div class="quota-fill over" style="width:100%"></div>
+      <div style="position:absolute;top:0;bottom:0;left:0;right:0;background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,0.25) 6px 12px)"></div>
+    </div>
+  </div>
+</div>
+</body></html>

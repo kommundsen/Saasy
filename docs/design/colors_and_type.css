@@ -1,0 +1,429 @@
+/* ============================================================
+   Saasy Design System — Tokens
+   Import once at app root. Everything here is a CSS variable.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* ---- Brand & chrome ---- */
+  --sass-pink:        #FF2D6F;
+  --sass-pink-deep:   #D8245C;
+  --sass-pink-wash:   #FFF0F4;
+  --sass-pink-tint:   #FFD9E4;
+
+  --ink:              #0E0F13;
+  --ink-2:            #1B1D24;
+  --ink-3:            #2B2D35;
+
+  --paper:            #FAFAF7;
+  --paper-2:          #F2F2EC;
+  --paper-3:          #E8E8E0;
+
+  /* ---- Foreground ramp (text on paper) ---- */
+  --fg-1:             #0E0F13; /* primary */
+  --fg-2:             #5A5E6B; /* secondary */
+  --fg-3:             #8B8F9C; /* tertiary, helper */
+  --fg-inv:           #FAFAF7; /* on ink */
+  --fg-inv-2:         #B6B9C2; /* secondary on ink */
+
+  /* ---- Borders & hairlines ---- */
+  --border-1:         #E6E5DE; /* default hairline on paper */
+  --border-2:         #D6D5CC; /* stronger divider */
+  --border-3:         #C0BFB6; /* contrast border */
+  --border-ink-1:     #2B2D35; /* hairline on ink */
+  --border-ink-2:     #3B3E48;
+
+  /* ---- Semantic state ---- */
+  --live:             #14A05B;
+  --live-wash:        #E2F4EB;
+  --live-ink:         #0B6238;
+
+  --warn:             #F4A742;
+  --warn-wash:        #FCEFD7;
+  --warn-ink:         #8A560C;
+
+  --over:             #E5484D;
+  --over-wash:        #FBE3E4;
+  --over-ink:         #8A1F22;
+
+  --sandbox:          #7A4DD8;       /* used only on the sandbox badge */
+  --sandbox-wash:     #ECE3FB;
+  --sandbox-ink:      #3F2280;
+
+  --info:             #2A6FDB;
+  --info-wash:        #DEEBFA;
+  --info-ink:         #163E80;
+
+  /* ---- Type ---- */
+  --font-sans:        'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:        'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ---- Type scale (size / line-height / tracking / weight) ---- */
+  --display-1-size:   72px;  --display-1-lh: 76px;  --display-1-track: -0.02em;
+  --display-2-size:   56px;  --display-2-lh: 60px;  --display-2-track: -0.02em;
+  --h1-size:          40px;  --h1-lh:        44px;  --h1-track:        -0.015em;
+  --h2-size:          28px;  --h2-lh:        32px;  --h2-track:        -0.01em;
+  --h3-size:          20px;  --h3-lh:        26px;  --h3-track:        -0.005em;
+  --body-size:        15px;  --body-lh:      22px;  --body-track:       0;
+  --ui-size:          14px;  --ui-lh:        20px;  --ui-track:         0;
+  --caption-size:     12px;  --caption-lh:   16px;  --caption-track:    0.02em;
+  --mono-num-size:    14px;  --mono-num-lh:  20px;
+  --mono-label-size:  11px;  --mono-label-lh:14px;  --mono-label-track: 0.06em;
+
+  /* ---- Spacing (4px base, fibonacci-ish ladder) ---- */
+  --space-0:   0;
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   24px;
+  --space-6:   32px;
+  --space-7:   48px;
+  --space-8:   64px;
+  --space-9:   96px;
+
+  /* ---- Radii ---- */
+  --radius-none:  0;
+  --radius-sm:    4px;
+  --radius-md:    8px;
+  --radius-lg:    12px;
+  --radius-xl:    20px;
+  --radius-pill:  999px;
+
+  /* ---- Shadows ---- */
+  --shadow-0:  none;
+  --shadow-1:  0 1px 0 rgba(14,15,19,0.04), 0 1px 2px rgba(14,15,19,0.04);
+  --shadow-2:  0 4px 12px rgba(14,15,19,0.06), 0 2px 4px rgba(14,15,19,0.04);
+  --shadow-3:  0 24px 48px rgba(14,15,19,0.12), 0 8px 16px rgba(14,15,19,0.06);
+  --shadow-focus: 0 0 0 2px var(--paper), 0 0 0 4px var(--sass-pink);
+
+  /* ---- Motion ---- */
+  --motion-1: 120ms cubic-bezier(0.2, 0, 0.13, 1.5);   /* micro overshoot */
+  --motion-2: 200ms cubic-bezier(0.2, 0, 0, 1);        /* default */
+  --motion-3: 400ms cubic-bezier(0.2, 0, 0, 1);        /* page level */
+
+  /* ---- Layout ---- */
+  --topbar-h:        64px;
+  --statusbar-h:     40px;
+  --sidebar-w:       240px;
+  --sidebar-w-min:   64px;
+  --frame-max:       1280px;
+  --content-max:     72ch;
+}
+
+/* ============================================================
+   Base element styling
+   ============================================================ */
+
+html, body {
+  font-family: var(--font-sans);
+  font-size: var(--body-size);
+  line-height: var(--body-lh);
+  color: var(--fg-1);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'cv11';
+  margin: 0;
+}
+
+* { box-sizing: border-box; }
+
+/* ---- Headings ---- */
+
+h1, .h1 {
+  font: 600 var(--h1-size)/var(--h1-lh) var(--font-sans);
+  letter-spacing: var(--h1-track);
+  margin: 0;
+}
+h2, .h2 {
+  font: 600 var(--h2-size)/var(--h2-lh) var(--font-sans);
+  letter-spacing: var(--h2-track);
+  margin: 0;
+}
+h3, .h3 {
+  font: 600 var(--h3-size)/var(--h3-lh) var(--font-sans);
+  letter-spacing: var(--h3-track);
+  margin: 0;
+}
+.display-1 {
+  font: 600 var(--display-1-size)/var(--display-1-lh) var(--font-sans);
+  letter-spacing: var(--display-1-track);
+  margin: 0;
+}
+.display-2 {
+  font: 600 var(--display-2-size)/var(--display-2-lh) var(--font-sans);
+  letter-spacing: var(--display-2-track);
+  margin: 0;
+}
+
+/* ---- Body, ui, caption ---- */
+
+p, .body {
+  font: 400 var(--body-size)/var(--body-lh) var(--font-sans);
+  margin: 0;
+  text-wrap: pretty;
+}
+.ui {
+  font: 500 var(--ui-size)/var(--ui-lh) var(--font-sans);
+}
+.caption {
+  font: 500 var(--caption-size)/var(--caption-lh) var(--font-sans);
+  letter-spacing: var(--caption-track);
+  color: var(--fg-2);
+}
+
+/* ---- Mono utilities ---- */
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'tnum', 'zero';
+}
+.mono-num {
+  font: 500 var(--mono-num-size)/var(--mono-num-lh) var(--font-mono);
+  font-feature-settings: 'tnum', 'zero';
+}
+.mono-label {
+  font: 600 var(--mono-label-size)/var(--mono-label-lh) var(--font-mono);
+  letter-spacing: var(--mono-label-track);
+  text-transform: uppercase;
+  font-feature-settings: 'tnum', 'zero';
+}
+
+/* ---- Code ---- */
+
+code, .code {
+  font: 500 var(--mono-num-size)/var(--mono-num-lh) var(--font-mono);
+  background: var(--paper-2);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+  font-feature-settings: 'tnum', 'zero';
+}
+
+pre {
+  font: 500 var(--mono-num-size)/var(--mono-num-lh) var(--font-mono);
+  background: var(--ink);
+  color: var(--fg-inv);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  overflow-x: auto;
+}
+
+/* ---- Links ---- */
+
+a {
+  color: var(--sass-pink);
+  text-decoration: none;
+  text-decoration-color: var(--sass-pink-tint);
+  text-underline-offset: 2px;
+  transition: color var(--motion-1), text-decoration-color var(--motion-1);
+}
+a:hover {
+  color: var(--sass-pink-deep);
+  text-decoration: underline;
+  text-decoration-color: var(--sass-pink);
+}
+
+/* ---- Focus ---- */
+
+:focus-visible {
+  outline: 2px solid var(--sass-pink);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ---- Selection ---- */
+::selection {
+  background: var(--sass-pink-tint);
+  color: var(--ink);
+}
+
+/* ============================================================
+   Common composite utility classes
+   ============================================================ */
+
+.card {
+  background: var(--paper);
+  border: 1px solid var(--border-1);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  padding: var(--space-5);
+}
+
+.hairline { border-bottom: 1px solid var(--border-1); }
+.hairline-t { border-top: 1px solid var(--border-1); }
+
+/* Capsule / pill (status badges) */
+.capsule {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-pill);
+  font: 600 var(--mono-label-size)/1 var(--font-mono);
+  letter-spacing: var(--mono-label-track);
+  text-transform: uppercase;
+  color: var(--fg-1);
+  background: var(--paper);
+}
+.capsule.live   { background: var(--live-wash);    color: var(--live-ink);    border-color: transparent; }
+.capsule.warn   { background: var(--warn-wash);    color: var(--warn-ink);    border-color: transparent; }
+.capsule.over   { background: var(--over-wash);    color: var(--over-ink);    border-color: transparent; }
+.capsule.sandbox{ background: var(--sandbox-wash); color: var(--sandbox-ink); border-color: transparent; }
+.capsule.info   { background: var(--info-wash);    color: var(--info-ink);    border-color: transparent; }
+.capsule.brand  { background: var(--sass-pink-wash); color: var(--sass-pink-deep); border-color: transparent; }
+
+/* Live dot — the only ambient animation */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--live);
+  display: inline-block;
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  0%, 100% { transform: scale(0.7); opacity: 0.7; }
+  50%      { transform: scale(1);   opacity: 1; }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font: 500 var(--ui-size)/1 var(--font-sans);
+  cursor: pointer;
+  transition: background var(--motion-1), border-color var(--motion-1), transform var(--motion-1);
+  user-select: none;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--sass-pink);
+  color: var(--paper);
+}
+.btn-primary:hover { background: var(--sass-pink-deep); }
+
+.btn-secondary {
+  background: var(--paper);
+  color: var(--fg-1);
+  border-color: var(--border-2);
+}
+.btn-secondary:hover { background: var(--paper-2); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--fg-1);
+}
+.btn-ghost:hover { background: var(--paper-2); }
+
+.btn-ink {
+  background: var(--ink);
+  color: var(--fg-inv);
+}
+.btn-ink:hover { background: var(--ink-2); }
+
+/* Input */
+.input {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: var(--fg-1);
+  font: 400 var(--ui-size)/1 var(--font-sans);
+  transition: border-color var(--motion-1), box-shadow var(--motion-1);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--sass-pink);
+  box-shadow: 0 0 0 3px var(--sass-pink-tint);
+}
+.input.mono { font-family: var(--font-mono); }
+
+/* Table */
+.tbl {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: 400 var(--ui-size)/1.4 var(--font-sans);
+}
+.tbl th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--border-1);
+  border-top: 1px solid var(--border-1);
+  font: 600 var(--mono-label-size)/1 var(--font-mono);
+  letter-spacing: var(--mono-label-track);
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.tbl td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--border-1);
+  vertical-align: middle;
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: var(--paper-2); }
+
+/* Quota meter */
+.quota {
+  position: relative;
+  height: 8px;
+  background: var(--paper-2);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.quota-fill {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  border-radius: var(--radius-pill);
+  background: var(--live);
+  transition: width var(--motion-2);
+}
+.quota-fill.warn { background: var(--warn); }
+.quota-fill.over { background: var(--over); }
+
+/* Sandbox banner / kind badge */
+.kind-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--sandbox-wash);
+  color: var(--sandbox-ink);
+  font: 600 var(--mono-label-size)/1.4 var(--font-mono);
+  letter-spacing: var(--mono-label-track);
+  text-transform: uppercase;
+}
+.kind-badge.production {
+  background: var(--ink);
+  color: var(--fg-inv);
+}
+
+/* Ink (dark) surface variant */
+.surface-ink {
+  background: var(--ink);
+  color: var(--fg-inv);
+}
+.surface-ink .fg-2 { color: var(--fg-inv-2); }
+.surface-ink .hairline { border-color: var(--border-ink-1); }
+
+/* Foreground utility classes */
+.fg-1 { color: var(--fg-1); }
+.fg-2 { color: var(--fg-2); }
+.fg-3 { color: var(--fg-3); }
+
+/* Numeric tabular */
+.tabular { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
