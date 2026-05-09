@@ -4,7 +4,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Package versions are added here as projects land in phase 0+. -->
-    <!-- See ADR-0006 for the convention; ADR-0002/0003/0005 for which packages are expected. -->
+    <!-- Worker hosting -->
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+
+    <!-- Testing -->
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4" />
   </ItemGroup>
 </Project>
