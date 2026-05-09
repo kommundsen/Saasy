@@ -17,10 +17,15 @@ namespace Saasy.Tenancy.Infrastructure.Extensions;
 //                  "__EFMigrationsHistory", schema: "xxx")));
 //
 // 2. Expose a MigrateXxxAsync() extension on IServiceProvider so hosts do not
-//    take a direct EF Core dependency:
+//    take a direct EF Core dependency. The DbContext is registered as scoped,
+//    so the helper MUST create a scope before resolving:
 //
-//      public static Task MigrateXxxAsync(this IServiceProvider services) =>
-//          services.GetRequiredService<XxxDbContext>().Database.MigrateAsync();
+//      public static async Task MigrateXxxAsync(this IServiceProvider services)
+//      {
+//          await using var scope = services.CreateAsyncScope();
+//          var db = scope.ServiceProvider.GetRequiredService<XxxDbContext>();
+//          await db.Database.MigrateAsync();
+//      }
 //
 // 3. In Program.cs of Saasy.Api / each Saasy.Workers.* host:
 //
@@ -44,6 +49,10 @@ public static class ServiceCollectionExtensions
         return builder;
     }
 
-    public static Task MigrateTenancyAsync(this IServiceProvider services) =>
-        services.GetRequiredService<TenancyDbContext>().Database.MigrateAsync();
+    public static async Task MigrateTenancyAsync(this IServiceProvider services)
+    {
+        await using var scope = services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<TenancyDbContext>();
+        await db.Database.MigrateAsync();
+    }
 }
