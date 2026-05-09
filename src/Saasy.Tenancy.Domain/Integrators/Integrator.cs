@@ -9,6 +9,9 @@ public sealed class Integrator : AggregateRoot<IntegratorId>
     public IntegratorTier Tier { get; private set; }
     public Timezone Timezone { get; private set; } = null!;
 
+    private readonly List<ApiKey> _apiKeys = [];
+    public IReadOnlyList<ApiKey> ApiKeys => _apiKeys.AsReadOnly();
+
     private Integrator() { }
 
     public static Integrator Create(
@@ -50,5 +53,48 @@ public sealed class Integrator : AggregateRoot<IntegratorId>
         Tier = newTier;
 
         RaiseDomainEvent(new IntegratorTierChanged(Id, oldTier, newTier, DateTime.UtcNow));
+    }
+
+    public (ApiKey ApiKey, string PlaintextSecret) MintApiKey(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("ApiKey name must not be empty.", nameof(name));
+
+        var plaintextSecret = GeneratePlaintextSecret();
+        var salt = ApiKeyHasher.GenerateSalt();
+        var hashBytes = ApiKeyHasher.Hash(plaintextSecret, salt);
+
+        var saltedHash = Convert.ToBase64String(salt) + "." + Convert.ToBase64String(hashBytes);
+        var last4 = plaintextSecret[^4..];
+        var now = DateTime.UtcNow;
+
+        var apiKey = ApiKey.Create(ApiKeyId.New(), name, saltedHash, last4, now);
+        _apiKeys.Add(apiKey);
+
+        RaiseDomainEvent(new ApiKeyMinted(Id, apiKey.Id, apiKey.Name, apiKey.Last4, now));
+
+        return (apiKey, plaintextSecret);
+    }
+
+    public void RevokeApiKey(ApiKeyId apiKeyId)
+    {
+        var apiKey = _apiKeys.FirstOrDefault(k => k.Id == apiKeyId)
+            ?? throw new InvalidOperationException($"ApiKey {apiKeyId} not found on Integrator {Id}.");
+
+        if (apiKey.IsRevoked)
+            return;
+
+        var now = DateTime.UtcNow;
+        apiKey.Revoke(now);
+
+        RaiseDomainEvent(new ApiKeyRevoked(Id, apiKeyId, now));
+    }
+
+    private static string GeneratePlaintextSecret()
+    {
+        // 32 random bytes encoded as URL-safe Base64 without padding = 43 chars.
+        var bytes = new byte[32];
+        System.Security.Cryptography.RandomNumberGenerator.Fill(bytes);
+        return Convert.ToBase64String(bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_');
     }
 }
