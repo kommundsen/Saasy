@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "nuget": {
+    "fileMatch": ["^Directory\\.Packages\\.props$"]
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["nuget"],
+      "matchFileNames": ["Directory.Packages.props"],
+      "groupName": "nuget-central",
+      "enabled": true
+    },
+    {
+      "matchManagers": ["nuget"],
+      "matchFileNames": ["**/*.csproj", "!Directory.Packages.props"],
+      "enabled": false
+    }
+  ]
+}
