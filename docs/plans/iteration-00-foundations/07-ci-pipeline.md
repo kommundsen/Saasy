@@ -1,7 +1,7 @@
 ---
 title: CI pipeline (build, test, lint)
 iteration: 00
-status: todo
+status: done
 labels: [foundations, ci]
 depends-on: [05-conjecture-test-scaffold]
 agent: backend
