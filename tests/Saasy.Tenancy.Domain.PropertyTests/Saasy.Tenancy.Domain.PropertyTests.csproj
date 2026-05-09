@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Conjecture.Core" />
+    <PackageReference Include="Conjecture.Time" />
     <PackageReference Include="Conjecture.Xunit.V3" />
     <PackageReference Include="coverlet.collector" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

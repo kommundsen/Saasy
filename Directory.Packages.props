@@ -18,9 +18,10 @@
     <!-- Azure SDK packages added here when introduced -->
   </ItemGroup>
   <ItemGroup Label="Conjecture">
-    <PackageVersion Include="Conjecture.Core" Version="0.28.0" />
-    <PackageVersion Include="Conjecture.Xunit.V3" Version="0.28.0" />
-    <PackageVersion Include="Conjecture.Money" Version="0.28.0" />
+    <PackageVersion Include="Conjecture.Core" Version="0.29.0" />
+    <PackageVersion Include="Conjecture.Xunit.V3" Version="0.29.0" />
+    <PackageVersion Include="Conjecture.Money" Version="0.29.0" />
+    <PackageVersion Include="Conjecture.Time" Version="0.29.0" />
   </ItemGroup>
   <ItemGroup Label="Observability">
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
