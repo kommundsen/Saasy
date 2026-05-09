@@ -1,0 +1,21 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    # CPM -- all versions live in Directory.Packages.props; Dependabot
+    # targets that file only and opens one PR per package group.
+    groups:
+      microsoft-aspire:
+        patterns:
+          - "Microsoft.*"
+          - "Aspire.*"
+      test-frameworks:
+        patterns:
+          - "xunit*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+      conjecture:
+        patterns:
+          - "Conjecture.*"

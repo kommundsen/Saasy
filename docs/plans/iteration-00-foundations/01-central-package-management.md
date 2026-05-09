@@ -1,7 +1,7 @@
 ---
 title: Central Package Management bootstrap
 iteration: 00
-status: todo
+status: done
 labels: [foundations, repo]
 depends-on: [00-solution-layout]
 agent: backend
