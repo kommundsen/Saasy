@@ -480,3 +480,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Conjecture example database (auto-generated; repros/ is checked in per ADR-0005)
+.conjecture/examples/
