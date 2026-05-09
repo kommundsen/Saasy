@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1902;NU1903</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <!--
+    Suppress NuGet audit advisories for OpenTelemetry packages that have no patched release.
+    Revisit when OpenTelemetry.Api and OpenTelemetry.Exporter.OpenTelemetryProtocol ship fixes.
+  -->
+  <ItemGroup>
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-g94r-2vxg-569j" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-4625-4j76-fww9" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-mr8r-92fq-pj8p" />
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-q834-8qmm-v933" />
+  </ItemGroup>
+</Project>

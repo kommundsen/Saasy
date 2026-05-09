@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Saasy.ServiceDefaults\Saasy.ServiceDefaults.csproj" />
+  </ItemGroup>
+
 </Project>

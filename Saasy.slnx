@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Saasy.Api/Saasy.Api.csproj" />
     <Project Path="src/Saasy.AppHost/Saasy.AppHost.csproj" />
+    <Project Path="src/Saasy.ServiceDefaults/Saasy.ServiceDefaults.csproj" />
     <Project Path="src/Saasy.SharedKernel.Domain/Saasy.SharedKernel.Domain.csproj" />
     <Project Path="src/Saasy.Tenancy.Application/Saasy.Tenancy.Application.csproj" />
     <Project Path="src/Saasy.Tenancy.Domain/Saasy.Tenancy.Domain.csproj" />
