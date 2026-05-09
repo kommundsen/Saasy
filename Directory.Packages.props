@@ -3,11 +3,27 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Worker hosting -->
+  <ItemGroup Label="Microsoft / Aspire">
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+  </ItemGroup>
 
-    <!-- Testing -->
+  <ItemGroup Label="EF Core">
+    <!-- EF Core packages added here when introduced -->
+  </ItemGroup>
+
+  <ItemGroup Label="Azure SDKs">
+    <!-- Azure SDK packages added here when introduced -->
+  </ItemGroup>
+
+  <ItemGroup Label="Conjecture">
+    <!-- Conjecture packages added here when introduced -->
+  </ItemGroup>
+
+  <ItemGroup Label="Observability">
+    <!-- OpenTelemetry packages added here when introduced -->
+  </ItemGroup>
+
+  <ItemGroup Label="Test frameworks">
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="xunit" Version="2.9.3" />
