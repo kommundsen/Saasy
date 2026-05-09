@@ -24,7 +24,7 @@ public sealed class MoneyStrategy : IStrategyProvider<Money>
     internal static Strategy<Money> ForCurrency(Currency currency)
     {
         return Strategy.Amounts(currency.Code, min: 0m, max: 10_000m)
-            .Select(amount => new Money(amount, currency));
+            .Select(amount => Money.Create(amount, currency));
     }
 
     public Strategy<Money> Create()
@@ -48,7 +48,7 @@ public sealed class SameCurrencyPairStrategy : IStrategyProvider<SameCurrencyPai
                 Currency currency = t.Item1;
                 decimal amount1 = Math.Round(t.Item2, currency.MinorUnits, MidpointRounding.ToEven);
                 decimal amount2 = Math.Round(t.Item3, currency.MinorUnits, MidpointRounding.ToEven);
-                return new SameCurrencyPair(new Money(amount1, currency), new Money(amount2, currency));
+                return new SameCurrencyPair(Money.Create(amount1, currency), Money.Create(amount2, currency));
             });
 
     public Strategy<SameCurrencyPair> Create() => Inner;
@@ -70,9 +70,9 @@ public sealed class SameCurrencyTripleStrategy : IStrategyProvider<SameCurrencyT
                 decimal amount2 = Math.Round(t.Item3, currency.MinorUnits, MidpointRounding.ToEven);
                 decimal amount3 = Math.Round(t.Item4, currency.MinorUnits, MidpointRounding.ToEven);
                 return new SameCurrencyTriple(
-                    new Money(amount1, currency),
-                    new Money(amount2, currency),
-                    new Money(amount3, currency));
+                    Money.Create(amount1, currency),
+                    Money.Create(amount2, currency),
+                    Money.Create(amount3, currency));
             });
 
     public Strategy<SameCurrencyTriple> Create() => Inner;

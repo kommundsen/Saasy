@@ -1,14 +1,22 @@
 namespace Saasy.SharedKernel.Domain;
 
-public readonly record struct Money
+public sealed record Money
 {
     public decimal Amount { get; }
     public Currency Currency { get; }
 
-    public Money(decimal amount, Currency currency)
+    private Money(decimal amount, Currency currency)
     {
         Amount = amount;
         Currency = currency;
+    }
+
+    public static Money Create(decimal amount, Currency currency)
+    {
+        if (amount < 0)
+            throw new ArgumentException("Amount cannot be negative.", nameof(amount));
+
+        return new Money(amount, currency);
     }
 
     public Money Add(Money other)
@@ -20,11 +28,17 @@ public readonly record struct Money
     public Money Subtract(Money other)
     {
         RequireSameCurrency(other);
-        return new Money(Amount - other.Amount, Currency);
+        decimal result = Amount - other.Amount;
+        if (result < 0)
+            throw new InvalidOperationException(
+                $"Subtraction would produce a negative amount ({Amount} - {other.Amount}).");
+        return new Money(result, Currency);
     }
 
     public Money Multiply(decimal factor)
     {
+        if (factor < 0)
+            throw new ArgumentException("Factor cannot be negative.", nameof(factor));
         return new Money(Amount * factor, Currency);
     }
 

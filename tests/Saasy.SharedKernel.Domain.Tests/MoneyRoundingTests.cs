@@ -9,7 +9,7 @@ public class MoneyRoundingTests
     [Fact]
     public void Multiply_ReturnsFullDecimalPrecision_NoImplicitRounding()
     {
-        var money = new Money(1m, Usd);
+        var money = Money.Create(1m, Usd);
         var factor = 1m / 3m;
 
         var result = money.Multiply(factor);
@@ -20,18 +20,18 @@ public class MoneyRoundingTests
     [Fact]
     public void Multiply_CallerCanRound_UsingDecimalRound()
     {
-        var money = new Money(1m, Usd);
+        var money = Money.Create(1m, Usd);
         var multiplied = money.Multiply(1m / 3m);
-        var rounded = new Money(decimal.Round(multiplied.Amount, 2, MidpointRounding.AwayFromZero), Usd);
+        var rounded = Money.Create(decimal.Round(multiplied.Amount, 2, MidpointRounding.AwayFromZero), Usd);
 
-        Assert.Equal(new Money(0.33m, Usd), rounded);
+        Assert.Equal(Money.Create(0.33m, Usd), rounded);
     }
 
     [Fact]
     public void Add_PreservesDecimalPrecision()
     {
-        var a = new Money(0.1m, Usd);
-        var b = new Money(0.2m, Usd);
+        var a = Money.Create(0.1m, Usd);
+        var b = Money.Create(0.2m, Usd);
 
         var result = a.Add(b);
 
@@ -41,8 +41,8 @@ public class MoneyRoundingTests
     [Fact]
     public void Subtract_PreservesDecimalPrecision()
     {
-        var a = new Money(1.00m, Usd);
-        var b = new Money(0.01m, Usd);
+        var a = Money.Create(1.00m, Usd);
+        var b = Money.Create(0.01m, Usd);
 
         var result = a.Subtract(b);
 
