@@ -18,12 +18,16 @@ namespace Saasy.Tenancy.Infrastructure.Extensions;
 //
 // 2. Expose a MigrateXxxAsync() extension on IServiceProvider so hosts do not
 //    take a direct EF Core dependency. The DbContext is registered as scoped,
-//    so the helper MUST create a scope before resolving:
+//    so the helper MUST create a scope before resolving. The migrations history
+//    table is configured to live in the per-context schema (so each context owns
+//    its own migration log), which means the schema MUST exist before EF can
+//    read the history -- ensure it explicitly before MigrateAsync:
 //
 //      public static async Task MigrateXxxAsync(this IServiceProvider services)
 //      {
 //          await using var scope = services.CreateAsyncScope();
 //          var db = scope.ServiceProvider.GetRequiredService<XxxDbContext>();
+//          await db.Database.ExecuteSqlRawAsync("CREATE SCHEMA IF NOT EXISTS xxx;");
 //          await db.Database.MigrateAsync();
 //      }
 //
@@ -53,6 +57,13 @@ public static class ServiceCollectionExtensions
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<TenancyDbContext>();
+
+        // The migration history table lives in the per-context schema, so the schema
+        // must exist before EF Core can read it on a fresh database. The InitialSchema
+        // migration's own EnsureSchema is what populates this on rerun, but EF reads
+        // the history before applying any migration.
+        await db.Database.ExecuteSqlRawAsync("CREATE SCHEMA IF NOT EXISTS tenancy;");
+
         await db.Database.MigrateAsync();
     }
 }
