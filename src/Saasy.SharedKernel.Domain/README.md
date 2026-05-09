@@ -7,7 +7,7 @@ Innermost project in the Saasy dependency graph. Contains only types that are sh
 | Type | Description |
 |---|---|
 | `Currency` | ISO 4217 three-letter code with minor unit count. Immutable `readonly record struct`. Self-validates via static `Create(string code, int minorUnits)`. |
-| `Money` | `(decimal Amount, Currency Currency)` immutable `readonly record struct`. Arithmetic (`Add`, `Subtract`, `Multiply`) throws `InvalidOperationException` on currency mismatch. No implicit rounding -- callers round as appropriate for the context. |
+| `Money` | `(decimal Amount, Currency Currency)` immutable `sealed record`. Constructed via static `Create(decimal amount, Currency currency)`; the private constructor and the factory's non-negative check guarantee no `Money` instance ever carries a negative amount. Arithmetic (`Add`, `Subtract`, `Multiply`) throws `InvalidOperationException` on currency mismatch and on operations that would yield a negative result; `Multiply` rejects negative factors. No implicit rounding -- callers round as appropriate for the context. |
 
 ## Constraints
 

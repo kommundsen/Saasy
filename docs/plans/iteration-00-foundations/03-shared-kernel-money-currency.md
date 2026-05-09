@@ -13,9 +13,9 @@ Implement `Saasy.SharedKernel.Domain` containing only `Money` and `Currency` val
 
 ## Acceptance criteria
 
-- `Money(decimal Amount, Currency Currency)` immutable record-struct.
-- `Currency` is an ISO-4217 enum or value object (3-letter code + minor units).
-- Arithmetic ops require currency match; mismatch throws.
+- `Money` is an immutable `sealed record` (class) of `(decimal Amount, Currency Currency)`. Construction goes through a static `Money.Create(decimal, Currency)` factory that rejects negative amounts; the constructor is `private` so the invariant cannot be bypassed (per architecture.md "Money amounts cannot be negative on construction").
+- `Currency` is an ISO-4217 value object (3-letter code + minor units), self-validating via `Currency.Create(...)`.
+- Arithmetic ops require currency match; mismatch throws. `Subtract` throws if it would yield a negative amount; `Multiply` throws on negative factors.
 - Zero `<PackageReference>` entries in csproj.
 - README in project documents the promotion rule per [ADR-0013](../../decisions/ADR-0013-shared-kernel.md).
 - Unit + property tests cover commutativity, associativity, currency-mismatch, rounding.
