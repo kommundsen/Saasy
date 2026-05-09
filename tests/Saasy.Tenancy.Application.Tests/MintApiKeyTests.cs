@@ -24,6 +24,7 @@ public sealed class MintApiKeyTests
 
         var result = await handler.HandleAsync(command);
 
+        Assert.NotNull(result);
         Assert.NotNull(result.PlaintextSecret);
         Assert.False(string.IsNullOrEmpty(result.PlaintextSecret));
         Assert.NotEqual(default, result.ApiKeyId);
