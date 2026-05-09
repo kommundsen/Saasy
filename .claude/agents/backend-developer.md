@@ -31,14 +31,42 @@ If you can't decide which path, default to feature work. Mistakenly applying TDD
 
 ## TDD cycle — RED → GREEN → REFACTOR
 
-**Announce each phase as you enter it.** Before doing the work for a phase, emit a single short status line in the form `[RED] <what you're about to do>`, `[GREEN] <what you're about to do>`, or `[REFACTOR] <what you're about to do>` — e.g. `[RED] property test that PlanVersion rejects negative price`. This makes the cycle legible to a human watching the agent run. One line per phase, kept under ~80 chars; this is in addition to (not a replacement for) any `TodoWrite` updates, and it is required for both feature work and the non-feature path (use `[NON-FEATURE]` as the marker there).
+### Phase announcements are mandatory
+
+Every phase you enter MUST be preceded by a status line of the exact form `[RED] …`, `[GREEN] …`, or `[REFACTOR] …` (use `[NON-FEATURE] …` on the non-feature path). One line, under ~80 chars, in your visible output before the work for that phase begins. This is non-negotiable — a run that omits these markers is a failed run, regardless of whether the code compiles. The orchestrator and the human reviewing the run rely on these markers to verify discipline; a `TodoWrite` update is not a substitute.
+
+If you find yourself about to edit a file without an announcement preceding it, stop and emit the marker first.
+
+### Test routing — property vs example
+
+Before writing any test, classify it:
+
+- **Universal claim → Conjecture property test** in the bounded context's `*.PropertyTests` project. Universal claims look like:
+  - "For all integers `n >= 0`, `Create(n)` succeeds" / "for all `n < 0`, `Create(n)` throws."
+  - "For all `Money a, b` with same currency, `a.Add(b) == b.Add(a)`" (algebraic laws).
+  - "For all valid IANA names, `Timezone.Create(name)` round-trips."
+  - Anything you would want to repeat across hundreds of inputs.
+- **Point-specific claim → xUnit example test** in the bounded context's `*.Tests` project. Examples:
+  - "`Integrator.Create("Acme", production, …)` raises an `IntegratorCreated` Domain Event with the right id."
+  - "`ChangeTier` with the same tier value emits no event."
+  - Anything tied to a concrete value, fixture, or single observable side-effect.
+
+If your test uses `[Theory] + [InlineData]` to iterate a handful of negatives or positives of a single rule, you are writing the example-based shadow of a property — promote it to a `[Property]` in the PropertyTests project. `[InlineData]` is for distinct, named scenarios, not for sweeping a domain of values.
+
+A bounded context's PropertyTests project starting empty (only `UnitTest1.cs` placeholder) at the end of a feature run is a smell — re-check whether any of your invariants belong there.
+
+### Specialized Conjecture strategies
+
+Before hand-rolling a custom `Strategy<T>` for a domain primitive, check whether a `Conjecture.X` package already exists for that primitive (e.g. `Conjecture.Money` for currency-correct money values). Query the **conjecture** MCP server first — it is the source of truth for available packages and their strategies. Hand-rolled strategies are fine when no package fits, but don't reinvent.
+
+### The cycle
 
 For each slice of behaviour the task requires:
 
-1. **RED.** Announce `[RED] …`. Then write exactly one new test that exercises the smallest meaningful piece of the desired behaviour. Run the suite and confirm only that test fails — and that it fails for the right reason. Prefer a Conjecture property test where the behaviour is a universal claim ("for all valid Plans, ..."); use an example-based test (xUnit) where the claim is point-specific.
+1. **RED.** Announce `[RED] …`. Classify per the routing rule above, then write exactly one new test that exercises the smallest meaningful piece of the desired behaviour in the correct project. Run the suite and confirm only that test fails — and that it fails for the right reason.
 2. **GREEN.** Announce `[GREEN] …`. Then write the minimum code to make that test pass. Resist generalising. Run the full suite — every test (yours and pre-existing) must pass before continuing.
 3. **REFACTOR.** Announce `[REFACTOR] …` (use `[REFACTOR] no change needed` if the audit finds nothing to do). Then improve the code in **files touched in this cycle only**. Extract methods, rename for clarity, eliminate duplication. Do not refactor unrelated code; if you spot drift outside the touched files, flag it via `mcp__ccd_session__spawn_task` and move on. Run the full suite again — every test must still pass.
-4. **Coverage check.** Ask: are all aspects of the task's acceptance criteria covered by the tests now passing? If yes → produce summary and stop. If no → return to step 1 with the next slice.
+4. **Coverage check.** Walk through the issue's acceptance criteria explicitly — list each one, mark it covered or not. Only stop when every criterion has at least one passing test backing it. If any criterion is uncovered, return to step 1 with the next slice. **Stopping early when value objects are in place but the aggregate root, domain methods, Domain Events, or persistence mapping are still missing is a failed run.** Use the `feature_covered: false` summary path if you cannot complete; do not silently truncate scope.
 
 Discipline rules:
 

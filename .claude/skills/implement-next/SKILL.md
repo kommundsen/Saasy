@@ -40,6 +40,27 @@ Every issue carries an `agent:` value in its frontmatter. The values:
 
 If the `agent:` field is missing on a non-done issue, treat it as `human` (the retrofit may have missed something) and surface the situation to the user.
 
+### Your role: orchestrator, not implementer
+
+Read this carefully — it is the most important rule in this skill.
+
+**Your job in this skill is dispatch and close-out, not implementation.** When the issue's `agent:` is `backend` or `frontend`, you MUST hand the work to the matching sub-agent via the `Agent` tool. You do not write code, you do not write tests, you do not edit source files in `src/` or `tests/`. The dedicated agents carry the TDD discipline (red → green → refactor, property tests via Conjecture, phase markers, coverage checks against acceptance criteria) — and that discipline only applies when the dedicated agent is the one running.
+
+If you start writing implementation code yourself, the entire purpose of this skill collapses: the agent definition never applies, no phase markers are emitted, tests get written after the fact, and the run produces exactly the kind of un-disciplined output this skill exists to prevent.
+
+**Forbidden in this skill:**
+- Calling `Edit` / `Write` on any file under `src/` or `tests/`.
+- Calling `Agent` with `subagent_type: general-purpose` for issue implementation. The dedicated agents — and only the dedicated agents — implement issues. (`general-purpose` is fine for unrelated lookups, but not for the issue itself.)
+- Omitting `subagent_type` on the dispatch. The default is `general-purpose`, which bypasses the dedicated agent's TDD rules.
+- Treating the dispatch as optional or "if the work looks small, just do it inline." There is no inline path. Either dispatch, or — if the issue is `agent: human` — surface and stop.
+
+The only files you edit in this skill are:
+- The issue's markdown frontmatter (flipping `status:` to `done`).
+- The iteration README checklist line (flipping `[ ]` to `[x]`).
+- `iterations.md` when an iteration completes (flipping the iteration's top-level checkbox).
+
+If you find yourself reaching for `Edit` on a `.cs` / `.tsx` / `.ts` / `.csproj` / migration file, stop — that's a sign you've drifted into implementation. Re-spawn the dedicated agent instead.
+
 ### Before spawning
 
 1. Read the issue file end-to-end.
@@ -50,12 +71,12 @@ If the `agent:` field is missing on a non-done issue, treat it as `human` (the r
 
 ### How to spawn
 
-Use the `Agent` tool. Set `subagent_type` to `backend-developer` or `frontend-developer`. Brief the agent self-containedly:
+Use the `Agent` tool. Set `subagent_type` **explicitly** to `backend-developer` or `frontend-developer` — never omit it, never substitute `general-purpose`. Brief the agent self-containedly:
 
 ```
 Implement the issue at <repo-relative path to issue file>.
 
-Read the issue, its iteration README, and any ADRs it cross-references. Follow your standard TDD discipline (or non-feature path if applicable). Return the JSON summary defined in your agent prompt as the last block of your output.
+Read the issue, its iteration README, and any ADRs it cross-references. Follow your standard TDD discipline (or non-feature path if applicable) — phase markers ([RED] / [GREEN] / [REFACTOR] or [NON-FEATURE]) are mandatory and the orchestrator will reject the run if they are absent. Return the JSON summary defined in your agent prompt as the last block of your output.
 
 Repo root: <abs path to repo root>.
 Current branch: <git branch output>.
@@ -74,6 +95,21 @@ Before spawning, check the git branch state:
 ## Close-out — when the agent returns
 
 The agent's last message contains a JSON block matching the contract in its definition. Parse it.
+
+### Discipline check (before any close-out path)
+
+Before parsing or acting on the JSON, scan the agent's full transcript for evidence of TDD discipline:
+
+- **Feature work:** the transcript MUST contain at least one `[RED]`, one `[GREEN]`, and one `[REFACTOR]` line emitted by the agent. These are the agent's own status announcements, formatted exactly as `[RED] …`, `[GREEN] …`, `[REFACTOR] …`. They appear in the agent's visible output (not buried inside tool calls).
+- **Non-feature path:** the transcript MUST contain at least one `[NON-FEATURE]` line. Feature markers are not a substitute and vice versa.
+
+If markers are missing or only some phases are present:
+
+1. Treat the run as `blocked` regardless of what the JSON says. Do **not** mark the issue done. Do **not** commit.
+2. Surface to the user: which markers were found, which were missing, and the agent's JSON `status` for context.
+3. Recommend re-dispatching with an explicit corrective ("the prior run skipped phase markers; re-spawning backend-developer with a reminder that markers are mandatory").
+
+This check exists because the dedicated agent's whole value proposition is the TDD cycle. A run without phase markers means either the agent skipped discipline or the wrong agent ran — both invalidate the result.
 
 ### `status: success` and `escalation: not_needed`
 
