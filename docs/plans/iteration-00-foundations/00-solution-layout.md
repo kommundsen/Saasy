@@ -1,7 +1,7 @@
 ---
 title: Solution layout & per-context project conventions
 iteration: 00
-status: todo
+status: done
 labels: [foundations, repo]
 depends-on: []
 agent: backend
