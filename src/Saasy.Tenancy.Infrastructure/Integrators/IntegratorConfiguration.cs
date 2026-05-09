@@ -44,5 +44,41 @@ internal sealed class IntegratorConfiguration : IEntityTypeConfiguration<Integra
         builder.Property(x => x.Version)
             .HasColumnName("version")
             .IsConcurrencyToken();
+
+        builder.OwnsMany(x => x.ApiKeys, apiKey =>
+        {
+            apiKey.ToTable("api_keys");
+
+            apiKey.WithOwner()
+                .HasForeignKey("integrator_id");
+
+            apiKey.HasKey(k => k.Id);
+
+            apiKey.Property(k => k.Id)
+                .HasConversion(id => id.Value, value => new ApiKeyId(value))
+                .HasColumnName("id");
+
+            apiKey.Property(k => k.Name)
+                .HasColumnName("name")
+                .HasMaxLength(200)
+                .IsRequired();
+
+            apiKey.Property(k => k.HashedSecret)
+                .HasColumnName("hashed_secret")
+                .HasMaxLength(500)
+                .IsRequired();
+
+            apiKey.Property(k => k.Last4)
+                .HasColumnName("last4")
+                .HasMaxLength(4)
+                .IsRequired();
+
+            apiKey.Property(k => k.CreatedAt)
+                .HasColumnName("created_at")
+                .IsRequired();
+
+            apiKey.Property(k => k.RevokedAt)
+                .HasColumnName("revoked_at");
+        });
     }
 }

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Saasy.Tenancy.Application;
+using Saasy.Tenancy.Application.Integrators;
 using Saasy.Tenancy.Domain.Integrators;
 using Saasy.Tenancy.Infrastructure.Integrators;
 
@@ -53,6 +55,8 @@ public static class ServiceCollectionExtensions
                     npgsql.MigrationsHistoryTable("__EFMigrationsHistory", schema: "tenancy")));
 
         builder.Services.AddScoped<IIntegratorRepository, IntegratorRepository>();
+        builder.Services.AddScoped<IUnitOfWork, TenancyUnitOfWork>();
+        builder.Services.AddScoped<MintApiKey.Handler>();
 
         return builder;
     }

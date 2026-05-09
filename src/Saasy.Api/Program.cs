@@ -1,3 +1,4 @@
+using Saasy.Api.Integrators;
 using Saasy.Tenancy.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,5 +11,6 @@ var app = builder.Build();
 await app.Services.MigrateTenancyAsync();
 
 app.MapDefaultEndpoints();
+app.MapIntegratorEndpoints();
 
 app.Run();
