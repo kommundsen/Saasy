@@ -20,7 +20,7 @@ No Plan/Subscription wiring. Events land in a raw store and are validated for sh
 
 ## Issues
 
-- [ ] [00 — Integrator aggregate (Kind, Tier, Timezone)](00-integrator-aggregate.md)
+- [x] [00 — Integrator aggregate (Kind, Tier, Timezone)](00-integrator-aggregate.md)
 - [ ] [01 — ApiKey lifecycle (hashed storage, revocation)](01-apikey-lifecycle.md)
 - [ ] [02 — Customer aggregate](02-customer-aggregate.md)
 - [ ] [03 — ApiKey authentication middleware](03-apikey-auth-middleware.md)
