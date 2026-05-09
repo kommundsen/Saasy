@@ -10,6 +10,10 @@
 
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Saasy.Api\Saasy.Api.csproj" IsAspireProjectResource="true" />
     <ProjectReference Include="..\Saasy.Worker\Saasy.Worker.csproj" IsAspireProjectResource="true" />
   </ItemGroup>
