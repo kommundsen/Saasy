@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Saasy.ServiceDefaults\Saasy.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Saasy.Tenancy.Infrastructure\Saasy.Tenancy.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
