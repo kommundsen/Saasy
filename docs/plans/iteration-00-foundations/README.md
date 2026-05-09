@@ -27,4 +27,4 @@ No domain logic. No HTTP endpoints beyond a health probe. No actual ingestion. N
 - [x] [04 — Postgres provisioning via Aspire + EF Core schema-per-context wiring](04-postgres-efcore.md)
 - [x] [05 — Conjecture.NET test project scaffold](05-conjecture-test-scaffold.md)
 - [x] [06 — OpenTelemetry baseline](06-otel-baseline.md)
-- [ ] [07 — CI pipeline (build, test, lint)](07-ci-pipeline.md)
+- [x] [07 — CI pipeline (build, test, lint)](07-ci-pipeline.md)
