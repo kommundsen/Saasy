@@ -1,7 +1,7 @@
 ---
 title: Integrator aggregate (Kind, Tier, Timezone)
 iteration: 01
-status: todo
+status: done
 labels: [tenancy, domain]
 depends-on: []
 agent: backend
