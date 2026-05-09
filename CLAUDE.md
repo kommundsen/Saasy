@@ -4,3 +4,4 @@
 - For UI work, read [docs/design/README.md](docs/design/README.md) and load tokens from [docs/design/colors_and_type.css](docs/design/colors_and_type.css). Surface-specific kits live under [docs/design/ui_kits/](docs/design/ui_kits/).
 - For Conjecture questions, prefer the `conjecture` MCP server (configured in `.mcp.json`) and [ommundsen.dev/Conjecture](https://ommundsen.dev/Conjecture/) over internal knowledge.
 - For .NET, Azure, ASP.NET Core, EF Core, Aspire, Event Hubs, and Azure Postgres questions, prefer the `microsoft-learn` MCP server over internal knowledge.
+- For all git commit messages, follow [.claude/skills/commit-message/SKILL.md](.claude/skills/commit-message/SKILL.md). Do not append `Co-Authored-By` or any other trailers.

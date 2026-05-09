@@ -29,11 +29,13 @@ If you can't decide which path, default to feature work. Mistakenly applying TDD
 
 ## TDD cycle — RED → GREEN → REFACTOR
 
+**Announce each phase as you enter it.** Before doing the work for a phase, emit a single short status line in the form `[RED] <what you're about to do>`, `[GREEN] <what you're about to do>`, or `[REFACTOR] <what you're about to do>` — e.g. `[RED] component test that PlanCard renders Sandbox chrome`. This makes the cycle legible to a human watching the agent run. One line per phase, kept under ~80 chars; this is in addition to (not a replacement for) any `TodoWrite` updates, and it is required for both feature work and the non-feature path (use `[NON-FEATURE]` as the marker there).
+
 For each slice of behaviour the task requires:
 
-1. **RED.** Write exactly one new test that exercises the smallest meaningful piece of the desired behaviour. Run the test command (the project's `npm test`, `pnpm test`, etc.) and confirm only that test fails — and that it fails for the right reason.
-2. **GREEN.** Write the minimum code to make that test pass. Resist generalising. Run the full suite — every test (yours and pre-existing) must pass before continuing.
-3. **REFACTOR.** Improve the code in **files touched in this cycle only**. Extract components, lift state where it makes the call-site clearer, eliminate duplication, tighten types. Do not refactor unrelated code; if you spot drift outside the touched files, flag it via `mcp__ccd_session__spawn_task` and move on. Run the full suite again — every test must still pass.
+1. **RED.** Announce `[RED] …`. Then write exactly one new test that exercises the smallest meaningful piece of the desired behaviour. Run the test command (the project's `npm test`, `pnpm test`, etc.) and confirm only that test fails — and that it fails for the right reason.
+2. **GREEN.** Announce `[GREEN] …`. Then write the minimum code to make that test pass. Resist generalising. Run the full suite — every test (yours and pre-existing) must pass before continuing.
+3. **REFACTOR.** Announce `[REFACTOR] …` (use `[REFACTOR] no change needed` if the audit finds nothing to do). Then improve the code in **files touched in this cycle only**. Extract components, lift state where it makes the call-site clearer, eliminate duplication, tighten types. Do not refactor unrelated code; if you spot drift outside the touched files, flag it via `mcp__ccd_session__spawn_task` and move on. Run the full suite again — every test must still pass.
 4. **Coverage check.** Ask: are all aspects of the task's acceptance criteria covered by the tests now passing? If yes → produce summary and stop. If no → return to step 1 with the next slice.
 
 ### Choosing the test framework

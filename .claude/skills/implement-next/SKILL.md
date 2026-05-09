@@ -81,15 +81,13 @@ This is the happy path. Execute, in order:
 
 1. **Mark the issue done.** Edit the issue file: change frontmatter `status: todo` (or `in-progress`) to `status: done`. Do not touch other frontmatter keys.
 2. **Update the iteration README checklist.** Find the line referencing this issue (formatted `- [ ] [NN — title](NN-stem.md)` or similar) and flip the `[ ]` to `[x]`.
-3. **Stage + commit + push.** Stage every file in the agent's `files_changed` array plus the two markdown files you just edited. Then run `git status --short` and confirm nothing modified is left unstaged — if there are surprise changes (files the agent modified but didn't list), surface them to the user and ask whether to include before committing. Commit with this message format (use a HEREDOC):
+3. **Stage + commit + push.** Stage every file in the agent's `files_changed` array plus the two markdown files you just edited. Then run `git status --short` and confirm nothing modified is left unstaged — if there are surprise changes (files the agent modified but didn't list), surface them to the user and ask whether to include before committing. Compose the commit message using the project's [commit-message skill](../commit-message/SKILL.md): a `Verb <what>` subject under 72 chars (no `iter-NN` prefix, no ticket refs), a 2–4 sentence body covering what shipped and which acceptance criteria are now covered, and a trailing `Implements docs/plans/iteration-<NN>-*/<issue-file>.` line so the commit links back to the issue. **Do not** append `Co-Authored-By` or any other trailers. Use a HEREDOC, e.g.:
    ```
-   iter-<NN>/<issue-stem>: <one-sentence-summary>
+   <Verb> <specific thing changed>
 
    <2-4 sentence body explaining what shipped and which acceptance criteria are now covered>
 
    Implements docs/plans/iteration-<NN>-*/<issue-file>.
-
-   Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
    ```
    Then push to the current tracking branch. If the branch has no upstream, push with `-u <remote> <branch>` against the default remote. If `git remote -v` reports **no remote at all**, surface that to the user — the commit is in place, but push and PR creation can't proceed until a remote is configured. Ask whether to set one up now or stop here with the local commit.
 4. **Ensure a draft PR exists.** Run `gh pr view --json number,isDraft 2>/dev/null` to detect an existing PR.
