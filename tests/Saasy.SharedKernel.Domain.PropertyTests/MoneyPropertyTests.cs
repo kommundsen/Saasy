@@ -1,104 +1,53 @@
+using Conjecture.Core;
+using Conjecture.Xunit.V3;
 using Saasy.SharedKernel.Domain;
+using Xunit;
 
 namespace Saasy.SharedKernel.Domain.PropertyTests;
 
 public class MoneyPropertyTests
 {
-    private static readonly Currency Usd = Currency.Create("USD", 2);
-    private static readonly Currency Eur = Currency.Create("EUR", 2);
-
-    // Generates pairs of non-extreme decimal amounts to keep arithmetic stable.
-    public static IEnumerable<object[]> PairsOfAmounts()
+    [Property(MaxExamples = 200, Seed = 42)]
+    public void Add_IsCommutative([From<SameCurrencyPairStrategy>] SameCurrencyPair pair)
     {
-        var rng = new Random(42);
-        for (int i = 0; i < 200; i++)
-        {
-            decimal a = Math.Round((decimal)(rng.NextDouble() * 10_000 - 5_000), 4);
-            decimal b = Math.Round((decimal)(rng.NextDouble() * 10_000 - 5_000), 4);
-            yield return [a, b];
-        }
+        Assert.Equal(pair.A.Add(pair.B), pair.B.Add(pair.A));
     }
 
-    public static IEnumerable<object[]> TriplesOfAmounts()
+    [Property(MaxExamples = 200, Seed = 99)]
+    public void Add_IsAssociative([From<SameCurrencyTripleStrategy>] SameCurrencyTriple triple)
     {
-        var rng = new Random(99);
-        for (int i = 0; i < 200; i++)
-        {
-            decimal a = Math.Round((decimal)(rng.NextDouble() * 1_000), 4);
-            decimal b = Math.Round((decimal)(rng.NextDouble() * 1_000), 4);
-            decimal c = Math.Round((decimal)(rng.NextDouble() * 1_000), 4);
-            yield return [a, b, c];
-        }
+        Assert.Equal(triple.A.Add(triple.B).Add(triple.C), triple.A.Add(triple.B.Add(triple.C)));
     }
 
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void Add_IsCommutative(decimal a, decimal b)
+    [Property(MaxExamples = 200, Seed = 7)]
+    public void Add_ThenSubtract_ReturnsOriginal([From<SameCurrencyPairStrategy>] SameCurrencyPair pair)
     {
-        var ma = new Money(a, Usd);
-        var mb = new Money(b, Usd);
-
-        Assert.Equal(ma.Add(mb), mb.Add(ma));
+        Assert.Equal(pair.A, pair.A.Add(pair.B).Subtract(pair.B));
     }
 
-    [Theory]
-    [MemberData(nameof(TriplesOfAmounts))]
-    public void Add_IsAssociative(decimal a, decimal b, decimal c)
+    [Property(MaxExamples = 200, Seed = 11)]
+    public void Multiply_ByOne_IsIdentity([From<MoneyStrategy>] Money a)
     {
-        var ma = new Money(a, Usd);
-        var mb = new Money(b, Usd);
-        var mc = new Money(c, Usd);
-
-        Assert.Equal(ma.Add(mb).Add(mc), ma.Add(mb.Add(mc)));
+        Assert.Equal(a, a.Multiply(1m));
     }
 
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void Add_ThenSubtract_ReturnsOriginal(decimal a, decimal b)
+    [Property(MaxExamples = 200, Seed = 13)]
+    public void Multiply_ByZero_ProducesZeroAmount([From<MoneyStrategy>] Money a)
     {
-        var ma = new Money(a, Usd);
-        var mb = new Money(b, Usd);
-
-        Assert.Equal(ma, ma.Add(mb).Subtract(mb));
-    }
-
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void Multiply_ByOne_ReturnsIdentical(decimal a, decimal _)
-    {
-        var ma = new Money(a, Usd);
-
-        Assert.Equal(ma, ma.Multiply(1m));
-    }
-
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void Multiply_ByZero_ReturnsZeroAmount(decimal a, decimal _)
-    {
-        var ma = new Money(a, Usd);
-        var result = ma.Multiply(0m);
-
+        Money result = a.Multiply(0m);
         Assert.Equal(0m, result.Amount);
-        Assert.Equal(Usd, result.Currency);
+        Assert.Equal(a.Currency, result.Currency);
     }
 
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void CurrencyMismatch_Add_AlwaysThrows(decimal a, decimal b)
+    [Property(MaxExamples = 200, Seed = 17)]
+    public void Add_DifferentCurrencies_Throws([From<DifferentCurrencyPairStrategy>] DifferentCurrencyPair pair)
     {
-        var ma = new Money(a, Usd);
-        var mb = new Money(b, Eur);
-
-        Assert.Throws<InvalidOperationException>((Action)(() => ma.Add(mb)));
+        Assert.Throws<InvalidOperationException>(() => pair.A.Add(pair.B));
     }
 
-    [Theory]
-    [MemberData(nameof(PairsOfAmounts))]
-    public void CurrencyMismatch_Subtract_AlwaysThrows(decimal a, decimal b)
+    [Property(MaxExamples = 200, Seed = 19)]
+    public void Subtract_DifferentCurrencies_Throws([From<DifferentCurrencyPairStrategy>] DifferentCurrencyPair pair)
     {
-        var ma = new Money(a, Usd);
-        var mb = new Money(b, Eur);
-
-        Assert.Throws<InvalidOperationException>((Action)(() => ma.Subtract(mb)));
+        Assert.Throws<InvalidOperationException>(() => pair.A.Subtract(pair.B));
     }
 }
