@@ -3,9 +3,10 @@ using Saasy.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.AddServiceDefaults();
 builder.AddTenancyInfrastructure();
 
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddHostedService<HeartbeatWorker>();
 
 var host = builder.Build();
 
