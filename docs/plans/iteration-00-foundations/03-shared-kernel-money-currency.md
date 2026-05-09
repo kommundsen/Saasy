@@ -1,7 +1,7 @@
 ---
 title: SharedKernel — Money & Currency
 iteration: 00
-status: todo
+status: done
 labels: [foundations, shared-kernel, domain]
 depends-on: [00-solution-layout]
 agent: backend
