@@ -3,8 +3,22 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Package versions are added here as projects land in phase 0+. -->
-    <!-- See ADR-0006 for the convention; ADR-0002/0003/0005 for which packages are expected. -->
+  <ItemGroup Label="Microsoft / Aspire">
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+  </ItemGroup>
+
+  <ItemGroup Label="Test frameworks">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="xunit.v3" Version="3.2.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+  </ItemGroup>
+
+  <ItemGroup Label="Conjecture">
+    <PackageVersion Include="Conjecture.Core" Version="0.27.1" />
+    <PackageVersion Include="Conjecture.Xunit.V3" Version="0.27.1" />
+    <PackageVersion Include="Conjecture.Money" Version="0.27.1" />
+    <PackageVersion Include="Conjecture.Time" Version="0.27.1" />
+    <PackageVersion Include="Conjecture.Interactions" Version="0.27.1" />
   </ItemGroup>
 </Project>

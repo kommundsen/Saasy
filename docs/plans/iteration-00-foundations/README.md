@@ -20,7 +20,7 @@ No domain logic. No HTTP endpoints beyond a health probe. No actual ingestion. N
 
 ## Issues
 
-- [ ] [00 — Solution layout & per-context project conventions](00-solution-layout.md)
+- [x] [00 — Solution layout & per-context project conventions](00-solution-layout.md)
 - [ ] [01 — Central Package Management bootstrap](01-central-package-management.md)
 - [ ] [02 — Aspire AppHost composition root](02-aspire-apphost.md)
 - [ ] [03 — SharedKernel: Money & Currency](03-shared-kernel-money-currency.md)
