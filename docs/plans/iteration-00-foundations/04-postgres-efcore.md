@@ -1,7 +1,7 @@
 ---
 title: Postgres provisioning + EF Core schema-per-context
 iteration: 00
-status: todo
+status: done
 labels: [foundations, persistence, ef-core]
 depends-on: [02-aspire-apphost]
 agent: backend
