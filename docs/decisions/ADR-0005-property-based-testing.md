@@ -49,10 +49,10 @@ PBT does NOT apply to E2E tests, UI snapshots, or observability tests.
 
 ### Configuration
 
-- `MaxExamples = 200` for PR CI; `1000+` for nightly invoice/Rollup correctness suites.
-- `Database` enabled — failing IRs persist to `.conjecture/examples/` and replay on next run.
-- `Targeting` where useful (e.g., maximize Invoice line-item count).
-- fast-check: `numRuns = 100` default, `1000` for nightly pricing-renderer / token-parser suites.
+- **PR CI uses each engine's standard policy.** No `MaxExamples` / `numRuns` overrides; let Conjecture and fast-check pick their defaults so the schedule varies across runs and exploration grows over time.
+- **Nightly correctness suites override** — invoice / Rollup / pricing-renderer / token-parser suites set `MaxExamples = 1000+` (Conjecture) and `numRuns = 1000` (fast-check) at the assembly / suite level.
+- **No per-`[Property]` `Seed` overrides.** Reproducibility on failure comes from `Database` (Conjecture: failing IRs persist to `.conjecture/examples/` and replay on the next run) and exported Reproductions (see below). Pinning a per-test seed freezes the schedule and recreates the seeded-`[Theory]` anti-pattern.
+- `Targeting` (Conjecture) where useful (e.g., maximize Invoice line-item count).
 
 ### Strategy reuse beyond `[Property]` tests
 
