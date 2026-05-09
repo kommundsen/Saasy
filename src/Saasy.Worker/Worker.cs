@@ -1,7 +1,11 @@
+using System.Diagnostics;
+
 namespace Saasy.Worker;
 
 public class Worker(ILogger<Worker> logger, IConfiguration configuration) : BackgroundService
 {
+    internal static readonly ActivitySource ActivitySource = new("Saasy.Worker");
+
     private static readonly TimeSpan DefaultHeartbeatInterval = TimeSpan.FromSeconds(30);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -12,7 +16,12 @@ public class Worker(ILogger<Worker> logger, IConfiguration configuration) : Back
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            logger.LogInformation("Worker heartbeat at: {time}", DateTimeOffset.UtcNow);
+            using (var activity = ActivitySource.StartActivity("heartbeat"))
+            {
+                logger.LogInformation("Worker heartbeat at: {time}", DateTimeOffset.UtcNow);
+                activity?.SetTag("worker.heartbeat.timestamp", DateTimeOffset.UtcNow.ToString("O"));
+            }
+
             await Task.Delay(interval, stoppingToken);
         }
     }

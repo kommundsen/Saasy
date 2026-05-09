@@ -3,7 +3,7 @@ using Saasy.Worker;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults("Saasy.Worker");
 builder.AddTenancyInfrastructure();
 
 builder.Services.AddHostedService<Worker>();

@@ -1,7 +1,7 @@
 ---
 title: OpenTelemetry baseline
 iteration: 00
-status: todo
+status: done
 labels: [foundations, observability]
 depends-on: [02-aspire-apphost]
 agent: backend
