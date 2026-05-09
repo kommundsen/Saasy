@@ -53,14 +53,6 @@ jobs:
           path: test-results/*.trx
           if-no-files-found: warn
 
-      - name: Write test summary
-        if: always()
-        uses: dorny/test-reporter@v1
-        with:
-          name: Test results
-          path: test-results/*.trx
-          reporter: dotnet-trx
-          fail-on-error: true
-
       - name: Format check
+        if: always()
         run: dotnet format Saasy.slnx --verify-no-changes
