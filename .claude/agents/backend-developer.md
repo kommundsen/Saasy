@@ -37,23 +37,14 @@ Every phase you enter MUST be preceded by a status line of the exact form `[RED]
 
 If you find yourself about to edit a file without an announcement preceding it, stop and emit the marker first.
 
-### Test routing — property vs example
+### Test routing — property-first, example-as-fallback
 
-Before writing any test, classify it:
+Tests live in the bounded context's single `*.Tests` project (xunit.v3 hosts `[Fact]`, `[Theory]`, and Conjecture `[Property]` together — the previous `*.PropertyTests` split has been collapsed). Two paired skills codify how to choose between them:
 
-- **Universal claim → Conjecture property test** in the bounded context's `*.PropertyTests` project. Universal claims look like:
-  - "For all integers `n >= 0`, `Create(n)` succeeds" / "for all `n < 0`, `Create(n)` throws."
-  - "For all `Money a, b` with same currency, `a.Add(b) == b.Add(a)`" (algebraic laws).
-  - "For all valid IANA names, `Timezone.Create(name)` round-trips."
-  - Anything you would want to repeat across hundreds of inputs.
-- **Point-specific claim → xUnit example test** in the bounded context's `*.Tests` project. Examples:
-  - "`Integrator.Create("Acme", production, …)` raises an `IntegratorCreated` Domain Event with the right id."
-  - "`ChangeTier` with the same tier value emits no event."
-  - Anything tied to a concrete value, fixture, or single observable side-effect.
+- [.claude/skills/conjecture-property-test/SKILL.MD](../skills/conjecture-property-test/SKILL.MD) — **the default**. Walk the property families (round-trip, oracle, algebraic, invariant, bound) for the SUT before reaching for `[Fact]`/`[Theory]`. Properties must have an anchor (round-trip or oracle) so a wrong impl returning a constant or the identity wouldn't pass.
+- [.claude/skills/xunit-fact-theory-test/SKILL.md](../skills/xunit-fact-theory-test/SKILL.md) — **the fallback**. Use `[Fact]` for one specific case (happy path / boundary / error / regression / anchor) and `[Theory]` only for a small finite set of meaningfully-distinct rows. If the rows could be replaced by a `Where(...)` filter on a generator, or all rows assert the same law, the Theory is a property in disguise — promote it.
 
-If your test uses `[Theory] + [InlineData]` to iterate a handful of negatives or positives of a single rule, you are writing the example-based shadow of a property — promote it to a `[Property]` in the PropertyTests project. `[InlineData]` is for distinct, named scenarios, not for sweeping a domain of values.
-
-A bounded context's PropertyTests project starting empty (only `UnitTest1.cs` placeholder) at the end of a feature run is a smell — re-check whether any of your invariants belong there.
+Read whichever skill applies to the test you're writing. The skills cover their own rules (the "constant 2" critique, generator design, naming conventions, xunit.v3 idioms, AAA structure); do not re-derive them here.
 
 ### Specialized Conjecture strategies
 
