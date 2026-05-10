@@ -78,6 +78,11 @@ public sealed class SameCurrencyTripleStrategy : IStrategyProvider<SameCurrencyT
     public Strategy<SameCurrencyTriple> Create() => Inner;
 }
 
+public sealed class NegativeDecimalStrategy : IStrategyProvider<decimal>
+{
+    public Strategy<decimal> Create() => Strategy.Decimals(min: -10_000m, max: -0.01m);
+}
+
 public sealed class DifferentCurrencyPairStrategy : IStrategyProvider<DifferentCurrencyPair>
 {
     public Strategy<DifferentCurrencyPair> Create()
