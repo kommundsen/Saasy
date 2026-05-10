@@ -1,7 +1,7 @@
 ---
 title: Customer aggregate
 iteration: 01
-status: todo
+status: done
 labels: [tenancy, domain]
 depends-on: [00-integrator-aggregate]
 agent: backend

@@ -1,3 +1,4 @@
+using Saasy.Api.Customers;
 using Saasy.Api.Integrators;
 using Saasy.Tenancy.Infrastructure.Extensions;
 
@@ -12,5 +13,6 @@ await app.Services.MigrateTenancyAsync();
 
 app.MapDefaultEndpoints();
 app.MapIntegratorEndpoints();
+app.MapCustomerEndpoints();
 
 app.Run();
