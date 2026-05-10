@@ -6,7 +6,7 @@ using Saasy.Metering.Infrastructure;
 using Saasy.Metering.Infrastructure.Events;
 using Saasy.Metering.Infrastructure.Ingestion;
 
-namespace Saasy.Metering.Infrastructure.PropertyTests;
+namespace Saasy.Metering.Infrastructure.Tests;
 
 // Property: for any valid batch of N envelopes (N <= 500), submitting the batch twice
 // via DirectEventIngestionStrategy yields exactly the same persisted row set as submitting

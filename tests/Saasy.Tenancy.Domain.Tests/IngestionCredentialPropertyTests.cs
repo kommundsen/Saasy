@@ -1,6 +1,6 @@
 using Saasy.Tenancy.Domain.Integrators;
 
-namespace Saasy.Tenancy.Domain.PropertyTests;
+namespace Saasy.Tenancy.Domain.Tests;
 
 public class IngestionCredentialPropertyTests
 {

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Saasy.Metering.Infrastructure;
 using Saasy.Metering.Infrastructure.Events;
 
-namespace Saasy.Metering.Infrastructure.PropertyTests;
+namespace Saasy.Metering.Infrastructure.Tests;
 
 // Idempotency invariant (ADR-0014): at-least-once delivery + unique index on
 // (integrator_id, idempotency_key) = effective-once storage.

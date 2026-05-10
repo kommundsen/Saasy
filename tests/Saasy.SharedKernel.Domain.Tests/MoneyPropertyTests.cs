@@ -3,7 +3,7 @@ using Conjecture.Xunit.V3;
 using Saasy.SharedKernel.Domain;
 using Xunit;
 
-namespace Saasy.SharedKernel.Domain.PropertyTests;
+namespace Saasy.SharedKernel.Domain.Tests;
 
 public class MoneyPropertyTests
 {
