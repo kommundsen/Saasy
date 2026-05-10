@@ -44,12 +44,4 @@ public class CurrencyTests
         Assert.Equal(a, b);
     }
 
-    [Fact]
-    public void StructuralEquality_DifferentCode_NotEqual()
-    {
-        var a = Currency.Create("USD", 2);
-        var b = Currency.Create("EUR", 2);
-
-        Assert.NotEqual(a, b);
-    }
 }

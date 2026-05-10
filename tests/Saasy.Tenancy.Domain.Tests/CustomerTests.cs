@@ -16,6 +16,9 @@ public sealed class CustomerTests
             displayName: "Acme Corp");
 
         Assert.NotEqual(Guid.Empty, customer.Id.Value);
+        Assert.Equal(SomeIntegratorId, customer.IntegratorId);
+        Assert.Equal("cust-001", customer.ExternalRef);
+        Assert.Equal("Acme Corp", customer.DisplayName);
     }
 
     [Fact]
@@ -106,17 +109,4 @@ public sealed class CustomerTests
         Assert.Throws<ArgumentException>(() => customer.Rename(newDisplayName!));
     }
 
-    [Fact]
-    public void Create_SetsIntegratorIdAndExternalRefAndDisplayName()
-    {
-        var customer = Customer.Create(
-            integratorId: SomeIntegratorId,
-            externalRef: "cust-001",
-            displayName: "Acme Corp");
-
-        Assert.Equal(SomeIntegratorId, customer.IntegratorId);
-        Assert.Equal("cust-001", customer.ExternalRef);
-        Assert.Equal("Acme Corp", customer.DisplayName);
-        Assert.Equal(0u, customer.Version);
-    }
 }

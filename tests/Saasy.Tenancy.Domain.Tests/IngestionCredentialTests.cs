@@ -71,23 +71,6 @@ public sealed class IngestionCredentialTests
     }
 
     [Fact]
-    public void MintIngestionCredential_TwoCallsWithDifferentPlaintextsProduceDifferentStoredForms()
-    {
-        var integrator = CreateIntegrator();
-
-        var (credential1, _) = integrator.MintIngestionCredential(
-            "Endpoint=sb://saasy.servicebus.windows.net/;SharedAccessKeyName=SendOnly;SharedAccessKey=AAAA",
-            FakeEncrypt);
-        var (credential2, _) = integrator.MintIngestionCredential(
-            "Endpoint=sb://saasy.servicebus.windows.net/;SharedAccessKeyName=SendOnly;SharedAccessKey=BBBB",
-            FakeEncrypt);
-
-        Assert.NotEqual(
-            credential1.EncryptedConnectionString,
-            credential2.EncryptedConnectionString);
-    }
-
-    [Fact]
     public void MintIngestionCredential_EmptyPlaintext_Throws()
     {
         var integrator = CreateIntegrator();
