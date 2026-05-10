@@ -7,6 +7,8 @@ description: Design property-based tests for .NET code using Conjecture. Use thi
 
 A property test asserts a *law* that must hold across many generated inputs, not a single hand-picked input/output pair. The job is to find the laws — Conjecture handles the generation and shrinking.
 
+**This is the default approach for testing in this repo.** Before writing a `[Fact]` or `[Theory]`, walk through the property families below. Most SUTs admit at least one law worth pinning down; example-based tests are the fallback for the cases where they genuinely don't (lookups, fixed error messages, anchored regressions, specific-case documentation). See [xunit-fact-theory-test](../xunit-fact-theory-test/SKILL.md) for when example tests are the right call.
+
 ## Mindset: think in laws, not examples
 
 Before writing any code, ask: **what must always be true about the output, given any valid input?**

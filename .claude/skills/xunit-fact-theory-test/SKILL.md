@@ -7,9 +7,21 @@ description: Design example-based xUnit tests for .NET code -- [Fact] for one sp
 
 An example-based test asserts that a *specific concrete input* produces a *specific concrete output*. The job is to pick the cases that document the contract and would catch the regressions you actually fear.
 
+## Default: try a property test first
+
+Before reaching for `[Fact]` or `[Theory]`, ask the property-test question for the System Under Test:
+
+- Is there a **round-trip** (`decode(encode(x)) == x`, `parse(format(x)) == x`)?
+- Is there an **oracle** -- a slow-but-obviously-correct reference?
+- Are there **algebraic laws** -- commutativity, associativity, idempotence, anti-symmetry?
+- Are there **invariants** the output must preserve relative to the input (length, ordering, set membership)?
+- Are there **bounds** the output must satisfy (range, sortedness, subset of input)?
+
+If *any* of those fit, route the work through the [conjecture-property-test](../conjecture-property-test/SKILL.MD) skill -- properties cover more inputs, shrink to minimal counterexamples, and document the actual contract. **Use this skill only after you've considered properties and concluded they don't apply.** Most of the SUTs that warrant a Theory with hand-picked rows are properties in disguise; the few that aren't (regressions, anchored examples, lookups, error-message-as-contract) are what this skill is for.
+
 ## Mindset: think in cases, not laws
 
-Before writing any code, ask: **what specific input do I want to nail down, and why does that case matter?**
+Once you've ruled out properties, ask: **what specific input do I want to nail down, and why does that case matter?**
 
 Good answers come from a few recurring intents. Most tests fit one of them:
 
