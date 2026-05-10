@@ -1,6 +1,6 @@
 namespace Saasy.Tenancy.Domain;
 
-public abstract class AggregateRoot<TId>
+public abstract class AggregateRoot<TId> : IHasDomainEvents
 {
     private readonly List<IDomainEvent> _domainEvents = [];
 

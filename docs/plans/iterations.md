@@ -24,7 +24,7 @@ These need a written ADR before the iterations that depend on them ship. Tracked
 ## Iterations
 
 - [x] [00 — Foundations](iteration-00-foundations/README.md) — solution layout, Aspire AppHost, Postgres, SharedKernel, Conjecture.NET, CI.
-- [ ] [01 — Tenancy & Ingestion](iteration-01-tenancy-ingestion/README.md) — Integrator, Customer, ApiKey aggregates; Event Hub + HTTP ingest; raw Event landing.
+- [x] [01 — Tenancy & Ingestion](iteration-01-tenancy-ingestion/README.md) — Integrator, Customer, ApiKey aggregates; Event Hub + HTTP ingest; raw Event landing.
 - [ ] [02 — Catalog](iteration-02-catalog/README.md) — Product Type, Dimension, Plan, PlanVersion, Pricing Components (Flat Fee, Per-Seat Fee, flat-rate Metered Charge).
 - [ ] [03 — Subscriptions & Rollups](iteration-03-subscriptions-rollups/README.md) — Subscription state machine, Rollups, Outbox, Service Bus, projections.
 - [ ] [04 — Admin Dashboard (read-only)](iteration-04-admin-dashboard-readonly/README.md) — React + Vite shell, OpenAPI client, read-only views over all current aggregates.

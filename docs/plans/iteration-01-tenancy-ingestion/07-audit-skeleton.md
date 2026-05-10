@@ -1,7 +1,7 @@
 ---
 title: Audit skeleton
 iteration: 01
-status: todo
+status: done
 labels: [tenancy, audit, observability]
 depends-on: [00-integrator-aggregate]
 agent: backend

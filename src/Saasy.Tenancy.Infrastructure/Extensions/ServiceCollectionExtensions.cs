@@ -7,6 +7,7 @@ using Saasy.Tenancy.Application.Customers;
 using Saasy.Tenancy.Application.Integrators;
 using Saasy.Tenancy.Domain.Customers;
 using Saasy.Tenancy.Domain.Integrators;
+using Saasy.Tenancy.Infrastructure.Audit;
 using Saasy.Tenancy.Infrastructure.Auth;
 using Saasy.Tenancy.Infrastructure.Customers;
 using Saasy.Tenancy.Infrastructure.Integrators;
@@ -50,26 +51,14 @@ namespace Saasy.Tenancy.Infrastructure.Extensions;
 
 public static class ServiceCollectionExtensions
 {
+    // Call from the Api host -- resolves ICurrentActor from HttpContext.User claims.
     public static IHostApplicationBuilder AddTenancyInfrastructure(
         this IHostApplicationBuilder builder)
     {
-        builder.AddNpgsqlDbContext<TenancyDbContext>(
-            connectionName: "saasy",
-            configureDbContextOptions: opts =>
-                opts.UseNpgsql(npgsql =>
-                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", schema: "tenancy")));
+        AddCommonTenancyInfrastructure(builder);
 
-        builder.Services.AddScoped<IIntegratorRepository, IntegratorRepository>();
-        builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
-        builder.Services.AddScoped<IUnitOfWork, TenancyUnitOfWork>();
-
-        // Placeholder -- StubIngestionCredentialMintService throws NotImplementedException.
-        // Replace with a real implementation in iter-02 before minting credentials in production.
-        builder.Services.AddSingleton<IIngestionCredentialMintService, StubIngestionCredentialMintService>();
-        builder.Services.AddScoped<MintApiKey.Handler>();
-        builder.Services.AddScoped<CreateCustomer.Handler>();
-        builder.Services.AddScoped<GetCustomer.Handler>();
-        builder.Services.AddScoped<RenameCustomer.Handler>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddScoped<ICurrentActor, HttpContextCurrentActor>();
 
         builder.Services
             .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
@@ -79,6 +68,38 @@ public static class ServiceCollectionExtensions
         builder.Services.AddAuthorization();
 
         return builder;
+    }
+
+    // Call from Worker hosts -- uses a stable "system:worker" identity.
+    public static IHostApplicationBuilder AddTenancyInfrastructureForWorker(
+        this IHostApplicationBuilder builder)
+    {
+        AddCommonTenancyInfrastructure(builder);
+        builder.Services.AddScoped<ICurrentActor, WorkerCurrentActor>();
+        return builder;
+    }
+
+    private static void AddCommonTenancyInfrastructure(IHostApplicationBuilder builder)
+    {
+        builder.AddNpgsqlDbContext<TenancyDbContext>(
+            connectionName: "saasy",
+            configureDbContextOptions: opts =>
+                opts.UseNpgsql(npgsql =>
+                    npgsql.MigrationsHistoryTable("__EFMigrationsHistory", schema: "tenancy")));
+
+        builder.Services.AddScoped<IIntegratorRepository, IntegratorRepository>();
+        builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+        builder.Services.AddScoped<TenancyAuditWriter>();
+        builder.Services.AddScoped<IAuditWriter>(sp => sp.GetRequiredService<TenancyAuditWriter>());
+        builder.Services.AddScoped<IUnitOfWork, TenancyUnitOfWork>();
+
+        // Placeholder -- StubIngestionCredentialMintService throws NotImplementedException.
+        // Replace with a real implementation in iter-02 before minting credentials in production.
+        builder.Services.AddSingleton<IIngestionCredentialMintService, StubIngestionCredentialMintService>();
+        builder.Services.AddScoped<MintApiKey.Handler>();
+        builder.Services.AddScoped<CreateCustomer.Handler>();
+        builder.Services.AddScoped<GetCustomer.Handler>();
+        builder.Services.AddScoped<RenameCustomer.Handler>();
     }
 
     public static async Task MigrateTenancyAsync(this IServiceProvider services)
