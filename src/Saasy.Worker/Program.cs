@@ -5,7 +5,7 @@ using Saasy.Worker;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddTenancyInfrastructure();
+builder.AddTenancyInfrastructureForWorker();
 builder.AddMeteringInfrastructure();
 
 builder.Services.AddHostedService<HeartbeatWorker>();
