@@ -61,7 +61,42 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         Assert.Equal(key, results[0].GetProperty("idempotency_key").GetString());
     }
 
-    // --- Batch of 500 ---
+    // --- Batch of N (property): for any N in [1, 50], submitting N valid envelopes
+    // returns 202 and the response accepted array has exactly N entries.
+    // Upper bound is 50 (not 500) to keep per-iteration HTTP cost manageable.
+    // The Fact below anchors the 500-item boundary case separately.
+    [Property]
+    public async Task BatchOfN_Returns202_AcceptedArrayLengthN(
+        [From<SmallBatchSizeStrategy>] int n)
+    {
+        var (integrator, secret) = await _factory.CreateIntegratorWithApiKeyAsync();
+        var client = _factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", secret);
+
+        var envelopes = Enumerable.Range(1, n).Select(i => new
+        {
+            integrator_id = integrator.Id.Value,
+            customer_external_ref = "cust-1",
+            event_type = "api_call",
+            dimension_code = "api_calls",
+            value = (decimal)i,
+            occurred_at = "2026-01-01T00:00:00Z",
+            idempotency_key = $"prop-batch-{n}-{i}"
+        });
+
+        var response = await client.PostAsync("/v1/events",
+            Json(JsonSerializer.Serialize(envelopes)),
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        var doc = JsonDocument.Parse(body);
+        var results = doc.RootElement.GetProperty("results");
+        Assert.Equal(n, results.GetArrayLength());
+    }
+
+    // --- Batch of 500 (boundary anchor) ---
 
     [Fact]
     public async Task BatchOf500_Returns202_AcceptedArrayLength500()
@@ -162,24 +197,24 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         Assert.DoesNotContain(0, indices);
     }
 
-    // --- Duplicate idempotency key -> 202 with accepted:false ---
-
-    [Fact]
-    public async Task DuplicateIdempotencyKey_Returns202_WithAcceptedFalse()
+    // --- Duplicate idempotency key property: for any key string k, submitting the
+    // same envelope twice yields accepted:false, reason:"duplicate" the second time.
+    [Property]
+    public async Task DuplicateIdempotencyKey_Returns202_WithAcceptedFalse_ForAnyKey(
+        [From<IdempotencyKeySuffixStrategy>] int keySuffix)
     {
         var (integrator, secret) = await _factory.CreateIntegratorWithApiKeyAsync();
         var client = _factory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", secret);
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("ApiKey", secret);
 
-        var key = Guid.NewGuid().ToString();
+        var key = $"dup-key-{keySuffix}";
         var payload = $$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}""";
 
-        // First submission
         var first = await client.PostAsync("/v1/events", Json(payload),
             TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Accepted, first.StatusCode);
 
-        // Second submission with same key
         var second = await client.PostAsync("/v1/events", Json(payload),
             TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Accepted, second.StatusCode);
@@ -197,14 +232,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
     [Fact]
     public async Task RateCapExceeded_Returns429_WithRetryAfterHeader()
     {
-        // Use a tier-capped factory that sets ingest cap to 1 req/min for Free tier,
-        // but to simplify: the Free tier has a low cap. We'll hammer it.
         var (integrator, secret) = await _factory.CreateIntegratorWithApiKeyAsync(IntegratorTier.Free);
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("ApiKey", secret);
 
         HttpResponseMessage? lastResponse = null;
-        // Free tier cap is 10 reqs/min; send 11 requests until we hit 429
+        // Free tier cap is 10 reqs/min; send 15 requests until we hit 429
         for (var i = 0; i < 15; i++)
         {
             var key = Guid.NewGuid().ToString();
@@ -242,6 +275,20 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
 
     private static StringContent Json(string json)
         => new(json, Encoding.UTF8, "application/json");
+}
+
+// Generates batch sizes in [1, 50] -- small enough for property-test HTTP overhead.
+internal sealed class SmallBatchSizeStrategy : IStrategyProvider<int>
+{
+    public Strategy<int> Create()
+        => Strategy.Integers<int>(1, 50);
+}
+
+// Generates integer suffixes used to construct deterministic idempotency keys.
+internal sealed class IdempotencyKeySuffixStrategy : IStrategyProvider<int>
+{
+    public Strategy<int> Create()
+        => Strategy.Integers<int>(1, int.MaxValue);
 }
 
 public sealed class EventIngestionTestFactory : WebApplicationFactory<Program>
@@ -283,7 +330,6 @@ public sealed class EventIngestionTestFactory : WebApplicationFactory<Program>
                 opts.UseInMemoryDatabase(_meteringDbName));
 
             // Override ingestion strategy: use Direct so tests run without Event Hubs.
-            // Remove any previously registered IEventIngestionStrategy (Hub singleton).
             var toRemoveStrategy = services
                 .Where(d => d.ServiceType == typeof(IEventIngestionStrategy))
                 .ToList();

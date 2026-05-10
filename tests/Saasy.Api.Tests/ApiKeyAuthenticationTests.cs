@@ -35,14 +35,18 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
-    [Fact]
-    public async Task MissingAuthorizationHeader_Returns401()
+    // Property: for any HTTP method and any path under /v1/customers/...,
+    // a missing Authorization header yields 401.
+    // Method and path are combined into a single strategy to avoid IR exhaustion
+    // during shrinking of two independent SampledFrom strategies.
+    [Property]
+    public async Task MissingAuthorizationHeader_Returns401_ForAnyMethodAndPath(
+        [From<AuthEndpointRequestStrategy>] AuthEndpointRequest req)
     {
         var client = _factory.CreateClient();
+        var request = new HttpRequestMessage(new HttpMethod(req.Method), req.Path);
 
-        var response = await client.GetAsync(
-            "/v1/customers/00000000-0000-0000-0000-000000000001",
-            TestContext.Current.CancellationToken);
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -126,6 +130,28 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
 
     private static StringContent JsonContent(string json)
         => new(json, System.Text.Encoding.UTF8, "application/json");
+}
+
+// A (method, path) pair for an authenticated endpoint request.
+public sealed record AuthEndpointRequest(string Method, string Path);
+
+// Generates one of the authenticated GET endpoints under /v1/customers/... as a
+// single SampledFrom draw. Only GET is used because POST/PATCH to /v1/customers/{id}
+// do not map to registered routes (they return 404/405, not 401), so the auth-check
+// invariant is only meaningful for the customer-lookup endpoint.
+internal sealed class AuthEndpointRequestStrategy : IStrategyProvider<AuthEndpointRequest>
+{
+    private static readonly IReadOnlyList<AuthEndpointRequest> AuthenticatedGetPaths =
+    [
+        new("GET", "/v1/customers/00000000-0000-0000-0000-000000000001"),
+        new("GET", "/v1/customers/00000000-0000-0000-0000-000000000002"),
+        new("GET", "/v1/customers/ffffffff-ffff-ffff-ffff-ffffffffffff"),
+        new("GET", "/v1/customers/11111111-1111-1111-1111-111111111111"),
+        new("GET", "/v1/customers/22222222-2222-2222-2222-222222222222"),
+    ];
+
+    public Strategy<AuthEndpointRequest> Create()
+        => Strategy.SampledFrom(AuthenticatedGetPaths);
 }
 
 public sealed class ApiTestFactory : WebApplicationFactory<Program>
