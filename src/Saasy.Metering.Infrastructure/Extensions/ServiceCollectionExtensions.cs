@@ -1,7 +1,9 @@
 using Azure.Messaging.EventHubs;
 using Azure.Messaging.EventHubs.Processor;
+using Azure.Messaging.EventHubs.Producer;
 using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Saasy.Metering.Infrastructure.Ingestion;
@@ -57,6 +59,39 @@ public static class ServiceCollectionExtensions
         });
 
         builder.Services.AddHostedService<EventIngestionConsumer>();
+
+        return builder;
+    }
+
+    // Registers the HTTP ingestion path: rate limiter (singleton) + ingestion strategy.
+    // Strategy is chosen by config key "Ingestion:Strategy": "Hub" (default) or "Direct".
+    // Default is "Hub" so HTTP traffic flows through the canonical pipeline (ADR-0001, ADR-0020).
+    public static IHostApplicationBuilder AddHttpEventIngestion(
+        this IHostApplicationBuilder builder)
+    {
+        // Singleton: shared across all requests so window state persists between requests.
+        builder.Services.AddSingleton<IngestRateLimiter>();
+
+        var strategyName = builder.Configuration["Ingestion:Strategy"] ?? "Hub";
+
+        if (string.Equals(strategyName, "Direct", StringComparison.OrdinalIgnoreCase))
+        {
+            builder.Services.AddScoped<IEventIngestionStrategy, DirectEventIngestionStrategy>();
+        }
+        else
+        {
+            // Hub strategy: requires EventHubProducerClient.
+            builder.Services.AddSingleton<EventHubProducerClient>(sp =>
+            {
+                var connectionString = builder.Configuration["ConnectionStrings:eventhubns"]
+                    ?? throw new InvalidOperationException(
+                        "ConnectionStrings:eventhubns is required for the Hub ingestion strategy. " +
+                        "Set Ingestion:Strategy=Direct for environments without Event Hubs.");
+
+                return new EventHubProducerClient(connectionString, "events");
+            });
+            builder.Services.AddSingleton<IEventIngestionStrategy, HubEventIngestionStrategy>();
+        }
 
         return builder;
     }
