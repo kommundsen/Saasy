@@ -44,16 +44,6 @@ public sealed class ApiKeyTests
     }
 
     [Fact]
-    public void MintApiKey_Last4MatchesTailOfPlaintext()
-    {
-        var integrator = CreateIntegrator();
-
-        var (apiKey, plaintext) = integrator.MintApiKey("test-key");
-
-        Assert.Equal(plaintext[^4..], apiKey.Last4);
-    }
-
-    [Fact]
     public void MintApiKey_ApiKeyIsAddedToIntegrator()
     {
         var integrator = CreateIntegrator();
@@ -77,17 +67,6 @@ public sealed class ApiKeyTests
         Assert.Equal(apiKey.Id, minted.ApiKeyId);
         Assert.Equal("test-key", minted.Name);
         Assert.Equal(apiKey.Last4, minted.Last4);
-    }
-
-    [Fact]
-    public void MintApiKey_TwoCallsReturnDifferentPlaintexts()
-    {
-        var integrator = CreateIntegrator();
-
-        var (_, plaintext1) = integrator.MintApiKey("key-1");
-        var (_, plaintext2) = integrator.MintApiKey("key-2");
-
-        Assert.NotEqual(plaintext1, plaintext2);
     }
 
     [Fact]

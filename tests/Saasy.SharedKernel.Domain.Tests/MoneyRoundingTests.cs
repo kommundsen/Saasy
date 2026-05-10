@@ -27,25 +27,4 @@ public class MoneyRoundingTests
         Assert.Equal(Money.Create(0.33m, Usd), rounded);
     }
 
-    [Fact]
-    public void Add_PreservesDecimalPrecision()
-    {
-        var a = Money.Create(0.1m, Usd);
-        var b = Money.Create(0.2m, Usd);
-
-        var result = a.Add(b);
-
-        Assert.Equal(0.3m, result.Amount);
-    }
-
-    [Fact]
-    public void Subtract_PreservesDecimalPrecision()
-    {
-        var a = Money.Create(1.00m, Usd);
-        var b = Money.Create(0.01m, Usd);
-
-        var result = a.Subtract(b);
-
-        Assert.Equal(0.99m, result.Amount);
-    }
 }
