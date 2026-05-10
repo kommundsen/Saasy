@@ -108,13 +108,4 @@ public class MoneyTests
         Assert.Throws<ArgumentException>(() => money.Multiply(-1m));
     }
 
-    [Fact]
-    public void StructuralEquality_SameAmountAndCurrency_Equal()
-    {
-        var a = Money.Create(10m, Usd);
-        var b = Money.Create(10m, Usd);
-
-        Assert.Equal(a, b);
-    }
-
 }

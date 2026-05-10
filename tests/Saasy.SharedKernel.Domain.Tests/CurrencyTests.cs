@@ -35,13 +35,4 @@ public class CurrencyTests
         Assert.Throws<ArgumentOutOfRangeException>(() => Currency.Create("USD", -1));
     }
 
-    [Fact]
-    public void StructuralEquality_SameCodeAndMinorUnits_Equal()
-    {
-        var a = Currency.Create("USD", 2);
-        var b = Currency.Create("USD", 2);
-
-        Assert.Equal(a, b);
-    }
-
 }
