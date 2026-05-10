@@ -7,8 +7,12 @@ internal static class IntegratorEndpoints
 {
     internal static IEndpointRouteBuilder MapIntegratorEndpoints(this IEndpointRouteBuilder app)
     {
+        // Anonymous: Integrators must be able to mint their first ApiKey before any key
+        // exists, so this endpoint cannot require auth. Future "create Integrator" endpoint
+        // will also be anonymous for the same reason.
         app.MapPost("/v1/integrators/{id:guid}/api-keys", MintApiKeyAsync)
-            .WithName("MintApiKey");
+            .WithName("MintApiKey")
+            .AllowAnonymous();
 
         return app;
     }

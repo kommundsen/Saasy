@@ -9,10 +9,17 @@ builder.AddTenancyInfrastructure();
 
 var app = builder.Build();
 
-await app.Services.MigrateTenancyAsync();
+if (!app.Environment.IsEnvironment("Testing"))
+    await app.Services.MigrateTenancyAsync();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapDefaultEndpoints();
 app.MapIntegratorEndpoints();
 app.MapCustomerEndpoints();
 
 app.Run();
+
+// Expose Program for WebApplicationFactory in integration tests.
+public partial class Program { }

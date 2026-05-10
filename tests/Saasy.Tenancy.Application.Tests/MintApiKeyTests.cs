@@ -69,6 +69,9 @@ file sealed class StubIntegratorRepository(Integrator? integrator) : IIntegrator
         => Task.FromResult(integrator is not null);
 
     public void Add(Integrator i) { }
+
+    public Task<IReadOnlyList<Integrator>> GetByApiKeyPrefixAsync(string last4, CancellationToken ct = default)
+        => Task.FromResult<IReadOnlyList<Integrator>>([]);
 }
 
 file sealed class StubUnitOfWork : IUnitOfWork
