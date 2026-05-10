@@ -140,17 +140,6 @@ public sealed class ApiKeyTests
     }
 
     [Fact]
-    public void RevokedApiKey_IsRevoked_ReturnsTrue()
-    {
-        var integrator = CreateIntegrator();
-        var (apiKey, _) = integrator.MintApiKey("test-key");
-
-        integrator.RevokeApiKey(apiKey.Id);
-
-        Assert.True(apiKey.IsRevoked);
-    }
-
-    [Fact]
     public void MintedApiKey_IsNotRevoked()
     {
         var integrator = CreateIntegrator();

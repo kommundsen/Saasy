@@ -8,7 +8,7 @@ namespace Saasy.Tenancy.Application.Tests;
 public sealed class CreateCustomerTests
 {
     [Fact]
-    public async Task HandleAsync_ReturnsCustomerId()
+    public async Task HandleAsync_WithValidCommand_ReturnsIdAndCommitsAndAddsToRepository()
     {
         var repo = new StubCustomerRepository();
         var uow = new StubUow();
@@ -19,33 +19,7 @@ public sealed class CreateCustomerTests
         var result = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.NotEqual(Guid.Empty, result.CustomerId.Value);
-    }
-
-    [Fact]
-    public async Task HandleAsync_CommitsUnitOfWork()
-    {
-        var repo = new StubCustomerRepository();
-        var uow = new StubUow();
-
-        var handler = new CreateCustomer.Handler(repo, uow);
-        var command = new CreateCustomer.Command(IntegratorId.New(), "cust-001", "Acme Corp");
-
-        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
-
         Assert.True(uow.Committed);
-    }
-
-    [Fact]
-    public async Task HandleAsync_AddsCustomerToRepository()
-    {
-        var repo = new StubCustomerRepository();
-        var uow = new StubUow();
-
-        var handler = new CreateCustomer.Handler(repo, uow);
-        var command = new CreateCustomer.Command(IntegratorId.New(), "cust-001", "Acme Corp");
-
-        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
-
         Assert.True(repo.Added);
     }
 }

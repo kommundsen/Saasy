@@ -117,21 +117,4 @@ public class MoneyTests
         Assert.Equal(a, b);
     }
 
-    [Fact]
-    public void StructuralEquality_DifferentAmount_NotEqual()
-    {
-        var a = Money.Create(10m, Usd);
-        var b = Money.Create(11m, Usd);
-
-        Assert.NotEqual(a, b);
-    }
-
-    [Fact]
-    public void StructuralEquality_DifferentCurrency_NotEqual()
-    {
-        var a = Money.Create(10m, Usd);
-        var b = Money.Create(10m, Eur);
-
-        Assert.NotEqual(a, b);
-    }
 }

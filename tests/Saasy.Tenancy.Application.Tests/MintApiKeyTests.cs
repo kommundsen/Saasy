@@ -13,7 +13,7 @@ public sealed class MintApiKeyTests
         timezone: Timezone.Create("UTC"));
 
     [Fact]
-    public async Task HandleAsync_ReturnsPlaintextSecretAndApiKeyId()
+    public async Task HandleAsync_WithValidCommand_ReturnsPlaintextSecretAndApiKeyIdAndCommits()
     {
         var integrator = CreateIntegrator();
         var repo = new StubIntegratorRepository(integrator);
@@ -28,20 +28,6 @@ public sealed class MintApiKeyTests
         Assert.NotNull(result.PlaintextSecret);
         Assert.False(string.IsNullOrEmpty(result.PlaintextSecret));
         Assert.NotEqual(default, result.ApiKeyId);
-    }
-
-    [Fact]
-    public async Task HandleAsync_CommitsUnitOfWork()
-    {
-        var integrator = CreateIntegrator();
-        var repo = new StubIntegratorRepository(integrator);
-        var uow = new StubUnitOfWork();
-
-        var handler = new MintApiKey.Handler(repo, uow);
-        var command = new MintApiKey.Command(integrator.Id, "my-key");
-
-        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
-
         Assert.True(uow.Committed);
     }
 
