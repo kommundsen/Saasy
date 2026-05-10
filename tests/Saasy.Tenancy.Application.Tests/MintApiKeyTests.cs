@@ -22,7 +22,7 @@ public sealed class MintApiKeyTests
         var handler = new MintApiKey.Handler(repo, uow);
         var command = new MintApiKey.Command(integrator.Id, "my-key");
 
-        var result = await handler.HandleAsync(command);
+        var result = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.NotNull(result.PlaintextSecret);
@@ -40,7 +40,7 @@ public sealed class MintApiKeyTests
         var handler = new MintApiKey.Handler(repo, uow);
         var command = new MintApiKey.Command(integrator.Id, "my-key");
 
-        await handler.HandleAsync(command);
+        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(uow.Committed);
     }
@@ -54,7 +54,7 @@ public sealed class MintApiKeyTests
         var handler = new MintApiKey.Handler(repo, uow);
         var command = new MintApiKey.Command(IntegratorId.New(), "my-key");
 
-        var result = await handler.HandleAsync(command);
+        var result = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.Null(result);
     }
