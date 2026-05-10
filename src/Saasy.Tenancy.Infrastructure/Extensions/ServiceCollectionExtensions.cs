@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -6,6 +7,7 @@ using Saasy.Tenancy.Application.Customers;
 using Saasy.Tenancy.Application.Integrators;
 using Saasy.Tenancy.Domain.Customers;
 using Saasy.Tenancy.Domain.Integrators;
+using Saasy.Tenancy.Infrastructure.Auth;
 using Saasy.Tenancy.Infrastructure.Customers;
 using Saasy.Tenancy.Infrastructure.Integrators;
 
@@ -64,6 +66,13 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<CreateCustomer.Handler>();
         builder.Services.AddScoped<GetCustomer.Handler>();
         builder.Services.AddScoped<RenameCustomer.Handler>();
+
+        builder.Services
+            .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+                ApiKeyAuthenticationHandler.SchemeName, _ => { });
+
+        builder.Services.AddAuthorization();
 
         return builder;
     }

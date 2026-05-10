@@ -29,6 +29,35 @@ public class ApiKeyHashingPropertyTests
         var hash2 = ApiKeyHasher.Hash(secret, salt2);
         Assert.NotEqual(hash1, hash2);
     }
+
+    [Property]
+    public void Verify_ReturnsFalse_ForAnyNonMatchingSecret(
+        [From<NonEmptyAsciiStringStrategy>] string storedSecret,
+        [From<NonEmptyAsciiStringStrategy>] string candidateSecret)
+    {
+        Assume.That(storedSecret != candidateSecret);
+
+        var salt = ApiKeyHasher.GenerateSalt();
+        var hashBytes = ApiKeyHasher.Hash(storedSecret, salt);
+        var storedValue = Convert.ToBase64String(salt) + "." + Convert.ToBase64String(hashBytes);
+
+        var result = ApiKeyHasher.Verify(candidateSecret, storedValue);
+
+        Assert.False(result);
+    }
+
+    [Property]
+    public void Verify_ReturnsTrue_ForMatchingSecret(
+        [From<NonEmptyAsciiStringStrategy>] string secret)
+    {
+        var salt = ApiKeyHasher.GenerateSalt();
+        var hashBytes = ApiKeyHasher.Hash(secret, salt);
+        var storedValue = Convert.ToBase64String(salt) + "." + Convert.ToBase64String(hashBytes);
+
+        var result = ApiKeyHasher.Verify(secret, storedValue);
+
+        Assert.True(result);
+    }
 }
 
 internal sealed class NonEmptyAsciiStringStrategy : IStrategyProvider<string>

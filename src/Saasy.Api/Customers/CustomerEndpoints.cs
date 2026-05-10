@@ -8,7 +8,8 @@ internal static class CustomerEndpoints
 {
     internal static IEndpointRouteBuilder MapCustomerEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("/v1/customers");
+        // All customer endpoints require ApiKey authentication.
+        var group = app.MapGroup("/v1/customers").RequireAuthorization();
 
         group.MapPost("/", CreateCustomerAsync)
             .WithName("CreateCustomer");

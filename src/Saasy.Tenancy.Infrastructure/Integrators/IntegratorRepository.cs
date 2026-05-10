@@ -13,4 +13,11 @@ internal sealed class IntegratorRepository(TenancyDbContext db) : IIntegratorRep
 
     public void Add(Integrator integrator)
         => db.Integrators.Add(integrator);
+
+    public async Task<IReadOnlyList<Integrator>> GetByApiKeyPrefixAsync(
+        string last4,
+        CancellationToken ct = default)
+        => await db.Integrators
+            .Where(i => i.ApiKeys.Any(k => k.Last4 == last4))
+            .ToListAsync(ct);
 }
