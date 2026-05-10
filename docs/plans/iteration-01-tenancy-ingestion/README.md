@@ -26,5 +26,5 @@ No Plan/Subscription wiring. Events land in a raw store and are validated for sh
 - [x] [03 — ApiKey authentication middleware](03-apikey-auth-middleware.md)
 - [x] [04 — Event Hubs provisioning + partition-by-integrator](04-event-hubs-provisioning.md)
 - [x] [05 — Event ingestion consumer (raw append-only store)](05-event-ingestion-consumer.md)
-- [ ] [06 — HTTP `POST /v1/events` ingestion endpoint](06-http-event-ingestion.md)
+- [x] [06 — HTTP `POST /v1/events` ingestion endpoint](06-http-event-ingestion.md)
 - [ ] [07 — Audit skeleton](07-audit-skeleton.md)

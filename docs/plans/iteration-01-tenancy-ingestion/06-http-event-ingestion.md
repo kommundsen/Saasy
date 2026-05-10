@@ -1,7 +1,7 @@
 ---
 title: HTTP POST /v1/events ingestion endpoint
 iteration: 01
-status: todo
+status: done
 labels: [ingestion, api]
 depends-on: [03-apikey-auth-middleware, 05-event-ingestion-consumer]
 agent: backend
