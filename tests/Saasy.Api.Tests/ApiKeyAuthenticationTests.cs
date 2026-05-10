@@ -27,7 +27,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("ApiKey", secret);
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         // 404 means auth passed (customer not found) -- 401 would mean auth failed
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -38,7 +40,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -50,7 +54,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", "sometoken");
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -61,7 +67,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", "ApiKey");
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -74,7 +82,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("ApiKey", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -91,7 +101,9 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("ApiKey", secret);
 
-        var response = await client.GetAsync("/v1/customers/00000000-0000-0000-0000-000000000001");
+        var response = await client.GetAsync(
+            "/v1/customers/00000000-0000-0000-0000-000000000001",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -105,7 +117,8 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
 
         var response = await client.PostAsync(
             "/v1/integrators/00000000-0000-0000-0000-000000000001/api-keys",
-            JsonContent("""{"name":"test"}"""));
+            JsonContent("""{"name":"test"}"""),
+            TestContext.Current.CancellationToken);
 
         // 404 (integrator not found) means we got past auth -- 401 would mean blocked.
         Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);

@@ -21,7 +21,7 @@ public sealed class RenameCustomerTests
         var handler = new RenameCustomer.Handler(repo, uow);
         var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
 
-        var found = await handler.HandleAsync(command);
+        var found = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(found);
     }
@@ -36,7 +36,7 @@ public sealed class RenameCustomerTests
         var handler = new RenameCustomer.Handler(repo, uow);
         var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
 
-        await handler.HandleAsync(command);
+        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.Equal("Acme Inc", customer.DisplayName);
     }
@@ -51,7 +51,7 @@ public sealed class RenameCustomerTests
         var handler = new RenameCustomer.Handler(repo, uow);
         var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
 
-        await handler.HandleAsync(command);
+        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(uow.Committed);
     }
@@ -65,7 +65,7 @@ public sealed class RenameCustomerTests
         var handler = new RenameCustomer.Handler(repo, uow);
         var command = new RenameCustomer.Command(CustomerId.New(), "Acme Inc");
 
-        var found = await handler.HandleAsync(command);
+        var found = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.False(found);
     }

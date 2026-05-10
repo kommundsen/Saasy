@@ -16,7 +16,7 @@ public sealed class CreateCustomerTests
         var handler = new CreateCustomer.Handler(repo, uow);
         var command = new CreateCustomer.Command(IntegratorId.New(), "cust-001", "Acme Corp");
 
-        var result = await handler.HandleAsync(command);
+        var result = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.NotEqual(Guid.Empty, result.CustomerId.Value);
     }
@@ -30,7 +30,7 @@ public sealed class CreateCustomerTests
         var handler = new CreateCustomer.Handler(repo, uow);
         var command = new CreateCustomer.Command(IntegratorId.New(), "cust-001", "Acme Corp");
 
-        await handler.HandleAsync(command);
+        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(uow.Committed);
     }
@@ -44,7 +44,7 @@ public sealed class CreateCustomerTests
         var handler = new CreateCustomer.Handler(repo, uow);
         var command = new CreateCustomer.Command(IntegratorId.New(), "cust-001", "Acme Corp");
 
-        await handler.HandleAsync(command);
+        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(repo.Added);
     }

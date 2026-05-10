@@ -30,7 +30,8 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         var client = _factory.CreateClient();
 
         var response = await client.PostAsync("/v1/events",
-            Json("""{"integrator_id":"00000000-0000-0000-0000-000000000001","customer_external_ref":"c","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"k1"}"""));
+            Json("""{"integrator_id":"00000000-0000-0000-0000-000000000001","customer_external_ref":"c","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"k1"}"""),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
@@ -46,11 +47,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
 
         var key = Guid.NewGuid().ToString();
         var response = await client.PostAsync("/v1/events",
-            Json($$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}"""));
+            Json($$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}"""),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
 
-        var body = await response.Content.ReadAsStringAsync();
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var results = doc.RootElement.GetProperty("results");
         Assert.Equal(JsonValueKind.Array, results.ValueKind);
@@ -80,11 +82,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         });
 
         var response = await client.PostAsync("/v1/events",
-            Json(JsonSerializer.Serialize(envelopes)));
+            Json(JsonSerializer.Serialize(envelopes)),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
 
-        var body = await response.Content.ReadAsStringAsync();
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var results = doc.RootElement.GetProperty("results");
         Assert.Equal(500, results.GetArrayLength());
@@ -111,11 +114,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         });
 
         var response = await client.PostAsync("/v1/events",
-            Json(JsonSerializer.Serialize(envelopes)));
+            Json(JsonSerializer.Serialize(envelopes)),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        var body = await response.Content.ReadAsStringAsync();
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var errors = doc.RootElement.GetProperty("errors");
         Assert.Equal(JsonValueKind.Array, errors.ValueKind);
@@ -141,11 +145,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
             ]
             """;
 
-        var response = await client.PostAsync("/v1/events", Json(json));
+        var response = await client.PostAsync("/v1/events", Json(json),
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
-        var body = await response.Content.ReadAsStringAsync();
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var errors = doc.RootElement.GetProperty("errors");
         Assert.Equal(JsonValueKind.Array, errors.ValueKind);
@@ -170,14 +175,16 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         var payload = $$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}""";
 
         // First submission
-        var first = await client.PostAsync("/v1/events", Json(payload));
+        var first = await client.PostAsync("/v1/events", Json(payload),
+            TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Accepted, first.StatusCode);
 
         // Second submission with same key
-        var second = await client.PostAsync("/v1/events", Json(payload));
+        var second = await client.PostAsync("/v1/events", Json(payload),
+            TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.Accepted, second.StatusCode);
 
-        var body = await second.Content.ReadAsStringAsync();
+        var body = await second.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var results = doc.RootElement.GetProperty("results");
         Assert.Equal(1, results.GetArrayLength());
@@ -202,7 +209,8 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
         {
             var key = Guid.NewGuid().ToString();
             lastResponse = await client.PostAsync("/v1/events",
-                Json($$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}"""));
+                Json($$"""{"integrator_id":"{{integrator.Id.Value}}","customer_external_ref":"cust-1","event_type":"api_call","dimension_code":"api_calls","value":1,"occurred_at":"2026-01-01T00:00:00Z","idempotency_key":"{{key}}"}"""),
+                TestContext.Current.CancellationToken);
             if (lastResponse.StatusCode == HttpStatusCode.TooManyRequests)
                 break;
         }
@@ -219,11 +227,12 @@ public sealed class HttpEventIngestionTests : IClassFixture<EventIngestionTestFa
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/openapi/v1.json");
+        var response = await client.GetAsync("/openapi/v1.json",
+            TestContext.Current.CancellationToken);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-        var body = await response.Content.ReadAsStringAsync();
+        var body = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         var doc = JsonDocument.Parse(body);
         var paths = doc.RootElement.GetProperty("paths");
         var hasEventsPath = paths.EnumerateObject()

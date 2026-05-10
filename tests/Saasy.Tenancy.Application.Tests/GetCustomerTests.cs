@@ -20,7 +20,7 @@ public sealed class GetCustomerTests
         var handler = new GetCustomer.Handler(repo);
         var query = new GetCustomer.Query(customer.Id);
 
-        var result = await handler.HandleAsync(query);
+        var result = await handler.HandleAsync(query, TestContext.Current.CancellationToken);
 
         Assert.NotNull(result);
         Assert.Equal(customer.Id, result.CustomerId);
@@ -37,7 +37,7 @@ public sealed class GetCustomerTests
         var handler = new GetCustomer.Handler(repo);
         var query = new GetCustomer.Query(CustomerId.New());
 
-        var result = await handler.HandleAsync(query);
+        var result = await handler.HandleAsync(query, TestContext.Current.CancellationToken);
 
         Assert.Null(result);
     }
