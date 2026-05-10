@@ -11,48 +11,23 @@ public sealed class RenameCustomerTests
         externalRef: "cust-001",
         displayName: "Acme Corp");
 
-    [Fact]
-    public async Task HandleAsync_WhenCustomerExists_ReturnsTrue()
+    // Property: for any non-blank display name, HandleAsync (a) returns true,
+    // (b) mutates the customer's DisplayName, (c) commits the Unit of Work.
+    [Property]
+    public async Task HandleAsync_WhenCustomerExists_ReturnsTrue_UpdatesDisplayName_CommitsUow(
+        [From<NonBlankStringStrategy>] string newDisplayName)
     {
         var customer = CreateTestCustomer();
         var repo = new StubRenameRepository(customer);
         var uow = new StubRenameUow();
 
         var handler = new RenameCustomer.Handler(repo, uow);
-        var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
+        var command = new RenameCustomer.Command(customer.Id, newDisplayName);
 
         var found = await handler.HandleAsync(command, TestContext.Current.CancellationToken);
 
         Assert.True(found);
-    }
-
-    [Fact]
-    public async Task HandleAsync_WhenCustomerExists_UpdatesDisplayName()
-    {
-        var customer = CreateTestCustomer();
-        var repo = new StubRenameRepository(customer);
-        var uow = new StubRenameUow();
-
-        var handler = new RenameCustomer.Handler(repo, uow);
-        var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
-
-        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
-
-        Assert.Equal("Acme Inc", customer.DisplayName);
-    }
-
-    [Fact]
-    public async Task HandleAsync_WhenCustomerExists_CommitsUnitOfWork()
-    {
-        var customer = CreateTestCustomer();
-        var repo = new StubRenameRepository(customer);
-        var uow = new StubRenameUow();
-
-        var handler = new RenameCustomer.Handler(repo, uow);
-        var command = new RenameCustomer.Command(customer.Id, "Acme Inc");
-
-        await handler.HandleAsync(command, TestContext.Current.CancellationToken);
-
+        Assert.Equal(newDisplayName, customer.DisplayName);
         Assert.True(uow.Committed);
     }
 
@@ -69,6 +44,13 @@ public sealed class RenameCustomerTests
 
         Assert.False(found);
     }
+}
+
+// Generates non-blank strings of printable ASCII characters.
+internal sealed class NonBlankStringStrategy : IStrategyProvider<string>
+{
+    public Strategy<string> Create()
+        => Strategy.Strings(minLength: 1, maxLength: 200, minCodepoint: 33, maxCodepoint: 126);
 }
 
 file sealed class StubRenameRepository(Customer? customer) : ICustomerRepository

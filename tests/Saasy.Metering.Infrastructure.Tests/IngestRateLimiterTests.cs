@@ -4,64 +4,130 @@ namespace Saasy.Metering.Infrastructure.Tests;
 
 public sealed class IngestRateLimiterTests
 {
-    [Fact]
-    public void TryConsume_WithinCap_ReturnsTrue()
-    {
-        var limiter = new IngestRateLimiter();
-        var integrator = Guid.NewGuid();
+    private const int Cap = 10;
 
-        Assert.True(limiter.TryConsume(integrator, capPerMinute: 5));
-    }
-
-    [Fact]
-    public void TryConsume_ExceedsCap_ReturnsFalse()
-    {
-        var limiter = new IngestRateLimiter();
-        var integrator = Guid.NewGuid();
-
-        // Consume all 3 allowed requests
-        for (var i = 0; i < 3; i++)
-            limiter.TryConsume(integrator, capPerMinute: 3);
-
-        // 4th must be rejected
-        Assert.False(limiter.TryConsume(integrator, capPerMinute: 3));
-    }
-
-    [Fact]
-    public void TryConsume_DifferentIntegrators_CountsAreIndependent()
-    {
-        var limiter = new IngestRateLimiter();
-        var a = Guid.NewGuid();
-        var b = Guid.NewGuid();
-
-        // Exhaust integrator A's cap
-        for (var i = 0; i < 2; i++)
-            limiter.TryConsume(a, capPerMinute: 2);
-
-        Assert.False(limiter.TryConsume(a, capPerMinute: 2));
-
-        // Integrator B is unaffected
-        Assert.True(limiter.TryConsume(b, capPerMinute: 2));
-    }
-
+    // Anchor: no window entry yet -> worst-case 60-second guidance.
     [Fact]
     public void SecondsUntilWindowReset_NoEntry_Returns60()
     {
         var limiter = new IngestRateLimiter();
-        var integrator = Guid.NewGuid();
 
-        Assert.Equal(60, limiter.SecondsUntilWindowReset(integrator));
+        // A fresh limiter with no window entry returns the full window duration.
+        Assert.Equal(60, limiter.SecondsUntilWindowReset(Guid.NewGuid()));
     }
 
-    [Fact]
-    public void SecondsUntilWindowReset_AfterConsume_IsPositiveAndAtMost60()
+    // Property A: for any n in [0, cap-1], consuming n times returns true for each
+    // call; after exactly cap consumptions the next call returns false.
+    // The property tests both "within-cap -> true" (n calls) and "exceed-cap -> false"
+    // (the cap+1 call) in a single generative sweep.
+    [Property]
+    public void TryConsume_WithinCapAllTrueExceedCapFalse(
+        [From<ConsumeCountStrategy>] int n,
+        [From<IntegratorSeedStrategy>] int integratorSeed)
     {
         var limiter = new IngestRateLimiter();
-        var integrator = Guid.NewGuid();
+        var integrator = IntegratorFromSeed(integratorSeed);
 
-        limiter.TryConsume(integrator, capPerMinute: 10);
+        // Consume n times (n in [0, cap-1]) -- all must succeed.
+        for (var i = 0; i < n; i++)
+            Assert.True(limiter.TryConsume(integrator, capPerMinute: Cap));
+
+        // Exhaust the remainder of the cap.
+        for (var i = n; i < Cap; i++)
+            limiter.TryConsume(integrator, capPerMinute: Cap);
+
+        // The next call after cap consumptions must be rejected.
+        Assert.False(limiter.TryConsume(integrator, capPerMinute: Cap));
+    }
+
+    // Property B: for any pair of distinct integrator IDs, consuming on one does
+    // not affect the other's counter. Both can consume up to cap - 1 independently.
+    [Property]
+    public void TryConsume_DistinctIntegrators_CountsAreIndependent(
+        [From<IndependentConsumeStrategy>] IndependentConsumePair pair)
+    {
+        var limiter = new IngestRateLimiter();
+
+        for (var i = 0; i < pair.CountA; i++)
+            Assert.True(limiter.TryConsume(pair.IntegratorA, capPerMinute: Cap));
+
+        for (var i = 0; i < pair.CountB; i++)
+            Assert.True(limiter.TryConsume(pair.IntegratorB, capPerMinute: Cap));
+    }
+
+    // Property C: after any number of consumes n in [1, cap], SecondsUntilWindowReset
+    // returns a value in [1, 60].
+    [Property]
+    public void SecondsUntilWindowReset_AfterAnyConsume_IsInBounds(
+        [From<PositiveConsumeCountStrategy>] int n,
+        [From<IntegratorSeedStrategy>] int integratorSeed)
+    {
+        var limiter = new IngestRateLimiter();
+        var integrator = IntegratorFromSeed(integratorSeed);
+
+        for (var i = 0; i < n; i++)
+            limiter.TryConsume(integrator, capPerMinute: Cap);
 
         var remaining = limiter.SecondsUntilWindowReset(integrator);
         Assert.InRange(remaining, 1, 60);
     }
+
+    private static Guid IntegratorFromSeed(int seed)
+        => new(seed, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
+
+// Generates n in [0, cap-1] -- within the cap, for the partial-consume prefix.
+internal sealed class ConsumeCountStrategy : IStrategyProvider<int>
+{
+    public Strategy<int> Create()
+        => Strategy.Integers<int>(0, IngestRateLimiterTests_Cap.Value - 1);
+}
+
+// Generates n in [1, cap] for the bounds property.
+internal sealed class PositiveConsumeCountStrategy : IStrategyProvider<int>
+{
+    public Strategy<int> Create()
+        => Strategy.Integers<int>(1, IngestRateLimiterTests_Cap.Value);
+}
+
+// Generates an integer seed used to derive a deterministic integrator ID.
+// Avoids Guid.NewGuid() (non-deterministic, triggers CON107) while giving each
+// property invocation an independent integrator ID.
+internal sealed class IntegratorSeedStrategy : IStrategyProvider<int>
+{
+    public Strategy<int> Create()
+        => Strategy.Integers<int>(1, 1_000_000);
+}
+
+// Generates a pair of distinct integrator IDs with consume counts within their caps.
+// Uses Strategy.Lists to produce 4 small integers from a single IR draw sequence,
+// avoiding IR exhaustion that arises from chained SelectMany strategies.
+internal sealed class IndependentConsumeStrategy : IStrategyProvider<IndependentConsumePair>
+{
+    private const int MaxCount = IngestRateLimiterTests_Cap.Value - 1;
+
+    public Strategy<IndependentConsumePair> Create()
+        => Strategy.Lists(Strategy.Integers<int>(0, 999_999), minSize: 4, maxSize: 4)
+            .Select(ints =>
+            {
+                var countA = ints[0] % (MaxCount + 1);
+                var countB = ints[1] % (MaxCount + 1);
+                var seedA = ints[2] + 1;
+                var seedB = ints[3] + 1_000_001;
+                return new IndependentConsumePair(
+                    IntegratorFromSeed(seedA), countA,
+                    IntegratorFromSeed(seedB), countB);
+            });
+
+    private static Guid IntegratorFromSeed(int seed)
+        => new(seed, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+}
+
+internal static class IngestRateLimiterTests_Cap
+{
+    internal const int Value = 10;
+}
+
+public sealed record IndependentConsumePair(
+    Guid IntegratorA, int CountA,
+    Guid IntegratorB, int CountB);
