@@ -57,6 +57,15 @@ var eventHubsNamespace = builder.AddAzureEventHubs("eventhubns")
 var eventsHub = eventHubsNamespace.AddHub("events");
 eventsHub.AddConsumerGroup("saasy-ingest-cg", "saasy-ingest");
 
+// Azure Blob Storage for EventProcessorClient checkpoint store (ADR-0001).
+// Local dev: Azurite emulator via RunAsEmulator().
+// Publish (azd): synthesised Bicep provisions the real storage account.
+// AddBlobs exposes an AzureBlobStorageResource (IResourceWithConnectionString) using
+// the name "checkpointstore", which the Worker resolves via AddAzureBlobServiceClient.
+var checkpointStorage = builder.AddAzureStorage("checkpointaccount")
+    .RunAsEmulator();
+var checkpointBlobs = checkpointStorage.AddBlobs("checkpointstore");
+
 // Api owns migrations in dev; production uses a dedicated Saasy.Migrate host
 // (per docs/architecture/architecture.md §Migrations).
 var api = builder.AddProject<Projects.Saasy_Api>("api")
@@ -65,10 +74,13 @@ var api = builder.AddProject<Projects.Saasy_Api>("api")
     .WaitFor(postgres);
 
 // Worker is the Event Hubs consumer per ADR-0001.
+// checkpointBlobs reference injects ConnectionStrings__checkpointstore into the Worker.
 builder.AddProject<Projects.Saasy_Worker>("worker")
     .WithReference(postgres)
     .WithReference(eventHubsNamespace)
+    .WithReference(checkpointBlobs)
     .WaitFor(postgres)
-    .WaitFor(api);
+    .WaitFor(api)
+    .WaitFor(checkpointStorage);
 
 builder.Build().Run();
