@@ -62,6 +62,10 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IIntegratorRepository, IntegratorRepository>();
         builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
         builder.Services.AddScoped<IUnitOfWork, TenancyUnitOfWork>();
+
+        // Placeholder -- StubIngestionCredentialMintService throws NotImplementedException.
+        // Replace with a real implementation in iter-02 before minting credentials in production.
+        builder.Services.AddSingleton<IIngestionCredentialMintService, StubIngestionCredentialMintService>();
         builder.Services.AddScoped<MintApiKey.Handler>();
         builder.Services.AddScoped<CreateCustomer.Handler>();
         builder.Services.AddScoped<GetCustomer.Handler>();

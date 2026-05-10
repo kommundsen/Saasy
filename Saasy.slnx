@@ -11,6 +11,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Saasy.Api.Tests/Saasy.Api.Tests.csproj" />
+    <Project Path="tests/Saasy.AppHost.Tests/Saasy.AppHost.Tests.csproj" />
     <Project Path="tests/Saasy.SharedKernel.Domain.PropertyTests/Saasy.SharedKernel.Domain.PropertyTests.csproj" />
     <Project Path="tests/Saasy.SharedKernel.Domain.Tests/Saasy.SharedKernel.Domain.Tests.csproj" />
     <Project Path="tests/Saasy.Tenancy.Application.Tests/Saasy.Tenancy.Application.Tests.csproj" />

@@ -12,6 +12,9 @@ public sealed class Integrator : AggregateRoot<IntegratorId>
     private readonly List<ApiKey> _apiKeys = [];
     public IReadOnlyList<ApiKey> ApiKeys => _apiKeys.AsReadOnly();
 
+    private readonly List<IngestionCredential> _ingestionCredentials = [];
+    public IReadOnlyList<IngestionCredential> IngestionCredentials => _ingestionCredentials.AsReadOnly();
+
     private Integrator() { }
 
     public static Integrator Create(
@@ -88,6 +91,29 @@ public sealed class Integrator : AggregateRoot<IntegratorId>
         apiKey.Revoke(now);
 
         RaiseDomainEvent(new ApiKeyRevoked(Id, apiKeyId, now));
+    }
+
+    // plaintextConnectionString is the real SAS connection string obtained from the
+    // infrastructure layer (IIngestionCredentialMintService) before calling this method.
+    // encrypt wraps it in ciphertext for persistence.
+    // The plaintext is returned to the caller exactly once and must not be logged or persisted.
+    public (IngestionCredential Credential, string PlaintextConnectionString) MintIngestionCredential(
+        string plaintextConnectionString,
+        Func<string, string> encrypt)
+    {
+        if (string.IsNullOrWhiteSpace(plaintextConnectionString))
+            throw new ArgumentException(
+                "Plaintext connection string must not be empty.", nameof(plaintextConnectionString));
+
+        var encrypted = encrypt(plaintextConnectionString);
+        var now = DateTime.UtcNow;
+
+        var credential = IngestionCredential.Create(IngestionCredentialId.New(), encrypted, now);
+        _ingestionCredentials.Add(credential);
+
+        RaiseDomainEvent(new IngestionCredentialMinted(Id, credential.Id, now));
+
+        return (credential, plaintextConnectionString);
     }
 
     private static string GeneratePlaintextSecret()
