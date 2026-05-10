@@ -4,7 +4,7 @@ using Conjecture.Xunit.V3;
 using Saasy.Tenancy.Domain.Integrators;
 using Xunit;
 
-namespace Saasy.Tenancy.Domain.PropertyTests;
+namespace Saasy.Tenancy.Domain.Tests;
 
 internal sealed class IanaTimezoneStrategy : IStrategyProvider<string>
 {

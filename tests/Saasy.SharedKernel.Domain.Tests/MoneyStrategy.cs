@@ -2,7 +2,7 @@ using Conjecture.Core;
 using Conjecture.Money;
 using Saasy.SharedKernel.Domain;
 
-namespace Saasy.SharedKernel.Domain.PropertyTests;
+namespace Saasy.SharedKernel.Domain.Tests;
 
 public readonly record struct SameCurrencyPair(Money A, Money B);
 public readonly record struct SameCurrencyTriple(Money A, Money B, Money C);
