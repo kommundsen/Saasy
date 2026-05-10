@@ -24,14 +24,10 @@ public class MoneyTests
         Assert.Equal(0m, money.Amount);
     }
 
-    [Theory]
-    [InlineData(-0.01)]
-    [InlineData(-1)]
-    [InlineData(-100.00)]
-    public void Create_NegativeAmount_Throws(double rawAmount)
+    [Property]
+    public void Create_NegativeAmount_Throws(
+        [From<NegativeDecimalStrategy>] decimal amount)
     {
-        var amount = (decimal)rawAmount;
-
         Assert.Throws<ArgumentException>(() => Money.Create(amount, Usd));
     }
 
