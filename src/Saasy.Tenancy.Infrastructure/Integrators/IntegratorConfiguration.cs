@@ -80,5 +80,29 @@ internal sealed class IntegratorConfiguration : IEntityTypeConfiguration<Integra
             apiKey.Property(k => k.RevokedAt)
                 .HasColumnName("revoked_at");
         });
+
+        builder.OwnsMany(x => x.IngestionCredentials, cred =>
+        {
+            cred.ToTable("ingestion_credentials");
+
+            cred.WithOwner()
+                .HasForeignKey("integrator_id");
+
+            cred.HasKey(c => c.Id);
+
+            cred.Property(c => c.Id)
+                .HasConversion(id => id.Value, value => new IngestionCredentialId(value))
+                .HasColumnName("id");
+
+            // Stored encrypted; column size 2000 accommodates ASP.NET Core Data Protection ciphertext.
+            cred.Property(c => c.EncryptedConnectionString)
+                .HasColumnName("encrypted_connection_string")
+                .HasMaxLength(2000)
+                .IsRequired();
+
+            cred.Property(c => c.CreatedAt)
+                .HasColumnName("created_at")
+                .IsRequired();
+        });
     }
 }

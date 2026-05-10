@@ -1,7 +1,7 @@
 ---
 title: Event Hubs provisioning + partition-by-integrator
 iteration: 01
-status: todo
+status: done
 labels: [ingestion, infrastructure, aspire]
 depends-on: []
 agent: backend
