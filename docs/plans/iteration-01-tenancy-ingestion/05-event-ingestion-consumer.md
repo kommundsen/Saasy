@@ -1,7 +1,7 @@
 ---
 title: Event ingestion consumer (raw append-only store)
 iteration: 01
-status: todo
+status: done
 labels: [ingestion, metering, worker]
 depends-on: [04-event-hubs-provisioning]
 agent: backend

@@ -13,12 +13,14 @@
   </ItemGroup>
   <ItemGroup Label="Aspire components">
     <PackageVersion Include="Aspire.Hosting.Azure.EventHubs" Version="13.3.0" />
+    <PackageVersion Include="Aspire.Hosting.Azure.Storage" Version="13.3.0" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="13.3.0" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="13.3.0" />
     <PackageVersion Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.3.0" />
+    <PackageVersion Include="Aspire.Azure.Storage.Blobs" Version="13.3.0" />
   </ItemGroup>
   <ItemGroup Label="Azure SDKs">
-    <!-- Azure SDK packages added here when introduced -->
+    <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.12.2" />
   </ItemGroup>
   <ItemGroup Label="Conjecture">
     <PackageVersion Include="Conjecture.Core" Version="0.29.0" />

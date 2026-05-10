@@ -8,6 +8,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\Saasy.Metering.Infrastructure\Saasy.Metering.Infrastructure.csproj" />
     <ProjectReference Include="..\Saasy.ServiceDefaults\Saasy.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Saasy.Tenancy.Infrastructure\Saasy.Tenancy.Infrastructure.csproj" />
   </ItemGroup>
