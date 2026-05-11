@@ -33,8 +33,11 @@ internal sealed class ApiKeyAuthenticationHandler(
 
         if (string.IsNullOrEmpty(authHeader))
         {
-            _logger.LogInformation("Auth failed: missing_header");
-            return AuthenticateResult.Fail("missing_header");
+            // No credentials presented. This scheme has nothing to assert -- return NoResult
+            // so anonymous endpoints (health probes, the mint-bootstrap route) don't generate
+            // a log entry per request. Authorization will still reject endpoints that require
+            // an identity with 401.
+            return AuthenticateResult.NoResult();
         }
 
         // Case-insensitive "ApiKey " prefix check
