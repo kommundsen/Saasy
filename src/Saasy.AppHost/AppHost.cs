@@ -11,7 +11,14 @@ var postgres = builder.AddPostgres("postgres")
 // Local dev uses the emulator, which ignores the ConfigureInfrastructure
 // block entirely, so the default value here is never actually used at run
 // time -- it exists only to satisfy the ParameterResource API.
-var captureContainerParam = builder.AddParameter("eventHubsCaptureContainer", secret: false);
+// Default keeps local dev running without prompting; the emulator ignores Capture
+// entirely (per Microsoft Learn) so the value is never actually consumed in that
+// path. Azd parameter files override per ACA Environment at publish, resolving to
+// "event-capture-sandbox" or "event-capture-prod" per ADR-0020.
+var captureContainerParam = builder.AddParameter(
+    "eventHubsCaptureContainer",
+    "event-capture-dev",
+    secret: false);
 
 // One Event Hubs namespace per region (ADR-0001, ADR-0009).
 // In local dev: Event Hubs emulator via RunAsEmulator().
