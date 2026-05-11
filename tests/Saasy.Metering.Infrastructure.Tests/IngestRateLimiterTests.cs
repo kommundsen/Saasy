@@ -100,24 +100,21 @@ internal sealed class IntegratorSeedStrategy : IStrategyProvider<int>
 }
 
 // Generates a pair of distinct integrator IDs with consume counts within their caps.
-// Uses Strategy.Lists to produce 4 small integers from a single IR draw sequence,
-// avoiding IR exhaustion that arises from chained SelectMany strategies.
 internal sealed class IndependentConsumeStrategy : IStrategyProvider<IndependentConsumePair>
 {
     private const int MaxCount = IngestRateLimiterTests_Cap.Value - 1;
 
-    public Strategy<IndependentConsumePair> Create()
-        => Strategy.Lists(Strategy.Integers<int>(0, 999_999), minSize: 4, maxSize: 4)
-            .Select(ints =>
-            {
-                var countA = ints[0] % (MaxCount + 1);
-                var countB = ints[1] % (MaxCount + 1);
-                var seedA = ints[2] + 1;
-                var seedB = ints[3] + 1_000_001;
-                return new IndependentConsumePair(
-                    IntegratorFromSeed(seedA), countA,
-                    IntegratorFromSeed(seedB), countB);
-            });
+    private static readonly Strategy<IndependentConsumePair> Inner =
+        Strategy.Tuples(
+                Strategy.Integers<int>(0, MaxCount),
+                Strategy.Integers<int>(0, MaxCount),
+                Strategy.Integers<int>(1, 1_000_000),
+                Strategy.Integers<int>(1_000_001, 2_000_000))
+            .Select(t => new IndependentConsumePair(
+                IntegratorFromSeed(t.Item3), t.Item1,
+                IntegratorFromSeed(t.Item4), t.Item2));
+
+    public Strategy<IndependentConsumePair> Create() => Inner;
 
     private static Guid IntegratorFromSeed(int seed)
         => new(seed, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
