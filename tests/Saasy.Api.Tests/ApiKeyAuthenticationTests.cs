@@ -37,8 +37,6 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
 
     // Property: for any HTTP method and any path under /v1/customers/...,
     // a missing Authorization header yields 401.
-    // Method and path are combined into a single strategy to avoid IR exhaustion
-    // during shrinking of two independent SampledFrom strategies.
     [Property]
     public async Task MissingAuthorizationHeader_Returns401_ForAnyMethodAndPath(
         [From<AuthEndpointRequestStrategy>] AuthEndpointRequest req)
@@ -135,23 +133,29 @@ public sealed class ApiKeyAuthenticationTests : IClassFixture<ApiTestFactory>
 // A (method, path) pair for an authenticated endpoint request.
 public sealed record AuthEndpointRequest(string Method, string Path);
 
-// Generates one of the authenticated GET endpoints under /v1/customers/... as a
-// single SampledFrom draw. Only GET is used because POST/PATCH to /v1/customers/{id}
-// do not map to registered routes (they return 404/405, not 401), so the auth-check
-// invariant is only meaningful for the customer-lookup endpoint.
+// Only GET is used because POST/PATCH to /v1/customers/{id} do not map to registered
+// routes (they return 404/405, not 401), so the auth-check invariant is only
+// meaningful for the customer-lookup endpoint.
 internal sealed class AuthEndpointRequestStrategy : IStrategyProvider<AuthEndpointRequest>
 {
-    private static readonly IReadOnlyList<AuthEndpointRequest> AuthenticatedGetPaths =
+    private static readonly IReadOnlyList<string> Methods = ["GET"];
+
+    private static readonly IReadOnlyList<string> Paths =
     [
-        new("GET", "/v1/customers/00000000-0000-0000-0000-000000000001"),
-        new("GET", "/v1/customers/00000000-0000-0000-0000-000000000002"),
-        new("GET", "/v1/customers/ffffffff-ffff-ffff-ffff-ffffffffffff"),
-        new("GET", "/v1/customers/11111111-1111-1111-1111-111111111111"),
-        new("GET", "/v1/customers/22222222-2222-2222-2222-222222222222"),
+        "/v1/customers/00000000-0000-0000-0000-000000000001",
+        "/v1/customers/00000000-0000-0000-0000-000000000002",
+        "/v1/customers/ffffffff-ffff-ffff-ffff-ffffffffffff",
+        "/v1/customers/11111111-1111-1111-1111-111111111111",
+        "/v1/customers/22222222-2222-2222-2222-222222222222",
     ];
 
-    public Strategy<AuthEndpointRequest> Create()
-        => Strategy.SampledFrom(AuthenticatedGetPaths);
+    private static readonly Strategy<AuthEndpointRequest> Inner =
+        Strategy.Tuples(
+                Strategy.SampledFrom(Methods),
+                Strategy.SampledFrom(Paths))
+            .Select(t => new AuthEndpointRequest(t.Item1, t.Item2));
+
+    public Strategy<AuthEndpointRequest> Create() => Inner;
 }
 
 public sealed class ApiTestFactory : WebApplicationFactory<Program>

@@ -47,8 +47,6 @@ public sealed class EnvelopeValidatorTests
     // Property: for any blank string s and any string field f in
     // {CustomerExternalRef, EventType, DimensionCode, IdempotencyKey},
     // replacing field f with s causes TryValidate to return false.
-    // Both parameters are combined into a single strategy to avoid IR exhaustion
-    // during shrinking with two independent SampledFrom strategies.
     [Property]
     public void TryValidate_WithAnyBlankStringField_ReturnsFalse(
         [From<BlankFieldStrategy>] BlankFieldCase testCase)
@@ -83,10 +81,6 @@ public sealed class EnvelopeValidatorTests
 // A blank string paired with the field selector index (0-3) to apply it to.
 public sealed record BlankFieldCase(string? BlankValue, int FieldSelector);
 
-// Generates one of all (blank string, field selector) cross-product combinations
-// as a single SampledFrom draw. This avoids the "Replay IR exhausted" issue that
-// occurs when two independent SampledFrom strategies are composed via SelectMany
-// during Conjecture's shrinking phase.
 internal sealed class BlankFieldStrategy : IStrategyProvider<BlankFieldCase>
 {
     private static readonly IReadOnlyList<string?> BlankStrings =
@@ -94,10 +88,11 @@ internal sealed class BlankFieldStrategy : IStrategyProvider<BlankFieldCase>
 
     private static readonly IReadOnlyList<int> FieldSelectors = [0, 1, 2, 3];
 
-    private static readonly IReadOnlyList<BlankFieldCase> AllCombinations =
-        BlankStrings.SelectMany(s => FieldSelectors.Select(f => new BlankFieldCase(s, f)))
-            .ToList();
+    private static readonly Strategy<BlankFieldCase> Inner =
+        Strategy.Tuples(
+                Strategy.SampledFrom(BlankStrings),
+                Strategy.SampledFrom(FieldSelectors))
+            .Select(t => new BlankFieldCase(t.Item1, t.Item2));
 
-    public Strategy<BlankFieldCase> Create()
-        => Strategy.SampledFrom(AllCombinations);
+    public Strategy<BlankFieldCase> Create() => Inner;
 }
