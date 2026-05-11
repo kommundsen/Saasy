@@ -39,6 +39,6 @@ These need a written ADR before the iterations that depend on them ship. Tracked
 ## Notes
 
 - Iterations are **sequential by default** — dependencies are noted in each iteration README. Where parallelism is safe (e.g. 04 read-only Dashboard while 05 is in flight) it is called out explicitly.
-- Iteration scope is fixed at start; new work surfaced mid-iteration becomes a new issue in a later iteration unless it is a hard blocker.
+- Iteration scope is fixed at start; new work surfaced mid-iteration becomes a new issue in a later iteration unless it is a hard blocker. Cross-iteration follow-ups -- items surfaced during one iteration's close-out that belong in a later iteration -- are tracked in [follow-ups.md](follow-ups.md) until they are pulled into a specific iteration's plan.
 - Property-based tests ([ADR-0005](../decisions/ADR-0005-property-based-testing.md)) are mandatory in iterations 03, 05, 06, 07, 08, 11.
 - UI work in iterations 04, 09, and any later surface work pulls from the [Saasy Design System](../design/README.md) (`saasy-design-system` skill, tokens in [colors_and_type.css](../design/colors_and_type.css), surface kits under [ui_kits/](../design/ui_kits/)).
