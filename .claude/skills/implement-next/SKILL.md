@@ -76,7 +76,7 @@ Use the `Agent` tool. Set `subagent_type` **explicitly** to `backend-developer` 
 ```
 Implement the issue at <repo-relative path to issue file>.
 
-Read the issue, its iteration README, and any ADRs it cross-references. Follow your standard TDD discipline (or non-feature path if applicable) — phase markers ([RED] / [GREEN] / [REFACTOR] or [NON-FEATURE]) are mandatory and the orchestrator will reject the run if they are absent. Return the JSON summary defined in your agent prompt as the last block of your output.
+Read the issue, its iteration README, and any ADRs it cross-references. Follow your standard TDD discipline. At RED, decide per slice whether the slice has a reasonable test scenario; if yes, property-first / example as fallback; if no, the cycle's `red` is "no test -- <reason>" and you proceed straight to GREEN with a build verification. One slice = one cycle entry = at most one test in `red` -- do not bulk-write tests. Return the JSON summary defined in your agent prompt as the last block of your output, with the `cycles` array populated -- the orchestrator validates discipline from `cycles`, not from transcript markers, and will reject the run if `cycles` is missing, empty (on success), inconsistent with `cycles_run` / `tests_added`, or has any cycle entry with an empty `red`/`green`/`refactor`.
 
 Repo root: <abs path to repo root>.
 Current branch: <git branch output>.
@@ -98,18 +98,23 @@ The agent's last message contains a JSON block matching the contract in its defi
 
 ### Discipline check (before any close-out path)
 
-Before parsing or acting on the JSON, scan the agent's full transcript for evidence of TDD discipline:
+The `Agent` tool only returns the sub-agent's **final message** to the orchestrator — intermediate phase announcements in the transcript are not visible here. Discipline is therefore validated structurally from the JSON contract, not by transcript scanning. The dedicated agents are required to emit a `cycles` array; the orchestrator's job is to verify it.
 
-- **Feature work:** the transcript MUST contain at least one `[RED]`, one `[GREEN]`, and one `[REFACTOR]` line emitted by the agent. These are the agent's own status announcements, formatted exactly as `[RED] …`, `[GREEN] …`, `[REFACTOR] …`. They appear in the agent's visible output (not buried inside tool calls).
-- **Non-feature path:** the transcript MUST contain at least one `[NON-FEATURE]` line. Feature markers are not a substitute and vice versa.
+Before any close-out path, parse the JSON and validate **all** of:
 
-If markers are missing or only some phases are present:
+1. **`cycles` exists and is non-empty** when `status == "success"` or `status == "partial"`. An empty `cycles` array is only acceptable on `status == "blocked"`.
+2. **Every cycle entry has all three keys populated.** Each `cycles[i]` must have non-empty strings for `red`, `green`, and `refactor`. A missing or empty key is a failed run — that's the agent skipping a phase.
+3. **One test (or "no test") per RED.** Each `cycles[i].red` is either (a) a single fully-qualified test name with a brief scenario, or (b) the literal pattern `no test -- <reason>`. If a `red` entry names multiple tests, or describes "added 3 tests for…", the agent bulk-wrote — failed run.
+4. **`cycles_run == cycles.length`.** Mismatch means the agent's own bookkeeping is wrong — failed run.
+5. **`tests_added` matches `cycles[].red`.** Every test name in `tests_added` must appear in exactly one `cycles[].red` entry, and vice versa (ignoring `no test -- …` entries). A test that exists in `tests_added` but not in any `cycles[].red` was written outside the cycle structure — failed run.
 
-1. Treat the run as `blocked` regardless of what the JSON says. Do **not** mark the issue done. Do **not** commit.
-2. Surface to the user: which markers were found, which were missing, and the agent's JSON `status` for context.
-3. Recommend re-dispatching with an explicit corrective ("the prior run skipped phase markers; re-spawning backend-developer with a reminder that markers are mandatory").
+If any check fails:
 
-This check exists because the dedicated agent's whole value proposition is the TDD cycle. A run without phase markers means either the agent skipped discipline or the wrong agent ran — both invalidate the result.
+1. Treat the run as `blocked` regardless of what the JSON's `status` says. Do **not** mark the issue done. Do **not** commit.
+2. Surface to the user: which check(s) failed, with the offending data (e.g. "`cycles.length == 1` but `tests_added.length == 5` — the agent bulk-wrote four tests outside the cycle structure").
+3. Recommend re-dispatching with an explicit corrective referencing the specific rule the agent violated.
+
+This check exists because the dedicated agent's whole value proposition is the TDD cycle. A JSON contract without a well-formed `cycles` array means either the agent skipped discipline or the wrong agent ran — both invalidate the result, even if the code compiles and tests pass.
 
 ### `status: success` and `escalation: not_needed`
 

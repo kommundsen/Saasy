@@ -54,11 +54,14 @@ For each slice of behaviour the task requires:
 3. **REFACTOR.** Announce `[REFACTOR] …` (use `[REFACTOR] no change needed` if the audit finds nothing to do). Then improve the code in **files touched in this cycle only**. Extract methods, rename for clarity, eliminate duplication. Do not refactor unrelated code; if you spot drift outside the touched files, flag it via `mcp__ccd_session__spawn_task` and move on. Run the full suite again — every test must still pass.
 4. **Coverage check.** Walk through the issue's acceptance criteria explicitly — list each one, mark it covered or not. A criterion is covered when it has either a passing test backing it, or — for slices with no reasonable test scenario — a verified non-test change (build / migration script / file read). Only stop when every criterion is covered. If any criterion is uncovered, return to step 1 with the next slice. **Stopping early when value objects are in place but the aggregate root, domain methods, Domain Events, or persistence mapping are still missing is a failed run.** Use the `feature_covered: false` summary path if you cannot complete; do not silently truncate scope.
 
+**Record each completed cycle.** After every REFACTOR, append a structured entry to the `cycles` array in your final summary (see the Output contract below). The entry captures the RED, GREEN, and REFACTOR actions for that one slice. Do not start the next slice until the previous cycle is recorded. The orchestrator validates discipline from this array — a missing or partial entry is a failed run, regardless of what the code looks like.
+
 Discipline rules:
 
-- **One test at a time in RED.** Don't write three failing tests and then GREEN them all at once.
+- **One test at a time in RED.** Don't write three failing tests and then GREEN them all at once. One slice = one cycles array entry = at most one test (or "no test -- <reason>") in `red`.
+- **The `cycles` array is the source of truth.** `cycles_run` must equal `cycles.length`. `tests_added` must equal the union of tests named in `cycles[].red` entries. Inconsistency between these fields is a failed run.
 - **Pre-existing failing tests** are not your problem — escalate (see below). Do not "fix" them as part of this task.
-- **No skipping REFACTOR**, even when the code feels fine. The audit is part of the cycle; "no change needed" is a valid outcome but you must consider it explicitly.
+- **No skipping REFACTOR**, even when the code feels fine. The audit is part of the cycle; "no change needed" is a valid outcome but you must consider it explicitly and record it in the cycle entry.
 - **No git operations.** You do not commit, branch, push, or modify `.git/`. The orchestrator owns git.
 - **No design / architecture decisions.** If the task implies an ADR-worthy choice (a new aggregate boundary, a new outbox table, a new external dependency), escalate as `needs_adr`.
 
@@ -112,6 +115,13 @@ When you stop (success or escalation), your **last message** must be a fenced JS
   "tests_added": ["FullyQualifiedTestName1", "FullyQualifiedTestName2"],
   "files_changed": ["path/relative/to/repo/root"],
   "cycles_run": 0,
+  "cycles": [
+    {
+      "red": "FullyQualifiedTestName -- one-line scenario, or 'no test -- <reason>'",
+      "green": "one-line summary of the production change that made RED pass (or the direct change when no test)",
+      "refactor": "one-line summary of the cleanup, or 'no change needed'"
+    }
+  ],
   "escalation": "not_needed",
   "escalation_detail": "",
   "recommended_next_action": "review and commit"
@@ -125,9 +135,10 @@ Field rules:
   - `partial` — some slices covered, more needed but loop cap or escalation hit.
   - `blocked` — could not start meaningfully (e.g. pre-existing failures on entry, or escalation before any cycle ran).
 - `feature_covered`: `true` only when every acceptance criterion in the issue is satisfied — either by a passing test or, for slices with no reasonable test scenario, by a verified non-test change. `false` otherwise.
-- `tests_added`: fully-qualified names of tests this agent added. Empty array if none (including when no slice warranted a test).
+- `tests_added`: fully-qualified names of tests this agent added. Empty array if none (including when no slice warranted a test). Must equal the set of test names that appear in `cycles[].red` (i.e. every entry in `cycles[].red` that is not a `no test -- …` string contributes exactly one name to `tests_added`).
 - `files_changed`: repo-relative paths of files this agent created or modified. Empty array if none.
-- `cycles_run`: integer count of completed RED→GREEN→REFACTOR cycles.
+- `cycles_run`: integer count of completed RED→GREEN→REFACTOR cycles. Must equal `cycles.length`.
+- `cycles`: ordered array, one entry per completed slice. Each entry has all three keys (`red`, `green`, `refactor`) populated as non-empty strings. `red` is either a fully-qualified test name plus a brief scenario, or `"no test -- <reason>"` when the slice had no reasonable test scenario. `green` is a one-line summary of the production change. `refactor` is a one-line summary or the literal `"no change needed"`. An empty array means zero cycles completed — only valid when `status` is `blocked` and the agent never reached a productive slice.
 - `escalation`: one of `not_needed | needs_human_clarification | needs_adr | recommend_elevate_model | pre_existing_failures | needs_human_authorization | loop_cap_reached`.
 - `escalation_detail`: short string (≤200 chars) describing the specific blocker. Empty string when `escalation == not_needed`.
 - `recommended_next_action`: short imperative for the orchestrator. Examples: `"review and commit"`, `"ask user about Plan Version validation rules"`, `"rerun this task with opus model"`, `"open ADR for cross-context invariant X"`.
