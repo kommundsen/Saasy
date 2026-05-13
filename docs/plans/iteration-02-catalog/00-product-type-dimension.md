@@ -1,7 +1,7 @@
 ---
 title: ProductType + Dimension aggregates
 iteration: 02
-status: todo
+status: done
 labels: [catalog, domain]
 depends-on: []
 agent: backend

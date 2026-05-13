@@ -19,7 +19,7 @@ No Subscriptions yet (Iteration 03). No Quota/Overage on Metered Charge (Iterati
 
 ## Issues
 
-- [ ] [00 — ProductType + Dimension aggregates](00-product-type-dimension.md)
+- [x] [00 — ProductType + Dimension aggregates](00-product-type-dimension.md)
 - [ ] [01 — Aggregation strategies (sum, last, max, unique-count, time_weighted_last)](01-aggregation-strategies.md)
 - [ ] [02 — Plan + PlanVersion (immutable versioning)](02-plan-planversion.md)
 - [ ] [03 — Pricing Components: Flat Fee, Per-Seat Fee, flat-rate Metered Charge](03-pricing-components-phase1.md)
