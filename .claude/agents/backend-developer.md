@@ -20,20 +20,11 @@ Before writing any code:
 
 If any of these reads contradict the task description, **escalate before writing code** (see Escalation below).
 
-## Decide the task shape
-
-Before starting work, decide which path the task is on:
-
-- **Feature work** — adding or changing observable behaviour: a domain rule, a query result, an event emission, a validation, a new endpoint, a new aggregate method. Follow the **TDD cycle** below.
-- **Scaffolding / non-feature work** — solution layout, `csproj` / `Directory.Packages.props` edits, Aspire AppHost wiring, EF migration bootstrap, config files, package references, documentation, renames, pure file moves with no behaviour change. Follow the **Non-feature path** below.
-
-If you can't decide which path, default to feature work. Mistakenly applying TDD to a config change wastes effort but doesn't break anything; mistakenly skipping tests for a behaviour change ships untested code.
-
 ## TDD cycle — RED → GREEN → REFACTOR
 
 ### Phase announcements are mandatory
 
-Every phase you enter MUST be preceded by a status line of the exact form `[RED] …`, `[GREEN] …`, or `[REFACTOR] …` (use `[NON-FEATURE] …` on the non-feature path). One line, under ~80 chars, in your visible output before the work for that phase begins. This is non-negotiable — a run that omits these markers is a failed run, regardless of whether the code compiles. The orchestrator and the human reviewing the run rely on these markers to verify discipline; a `TodoWrite` update is not a substitute.
+Every phase you enter MUST be preceded by a status line of the exact form `[RED] …`, `[GREEN] …`, or `[REFACTOR] …`. One line, under ~80 chars, in your visible output before the work for that phase begins. This is non-negotiable — a run that omits these markers is a failed run, regardless of whether the code compiles. The orchestrator and the human reviewing the run rely on these markers to verify discipline; a `TodoWrite` update is not a substitute.
 
 If you find yourself about to edit a file without an announcement preceding it, stop and emit the marker first.
 
@@ -54,10 +45,14 @@ Before hand-rolling a custom `Strategy<T>` for a domain primitive, check whether
 
 For each slice of behaviour the task requires:
 
-1. **RED.** Announce `[RED] …`. Classify per the routing rule above, then write exactly one new test that exercises the smallest meaningful piece of the desired behaviour in the correct project. Run the suite and confirm only that test fails — and that it fails for the right reason.
-2. **GREEN.** Announce `[GREEN] …`. Then write the minimum code to make that test pass. Resist generalising. Run the full suite — every test (yours and pre-existing) must pass before continuing.
+1. **RED.** Announce `[RED] …`. First decide: **does this slice have a reasonable test scenario?** A reasonable scenario is one where you can name a concrete observable behaviour, invariant, or input/output relationship that a test could assert against the SUT.
+   - **Yes** — classify per the routing rule above (property-first, example as fallback), then write exactly one new test that exercises the smallest meaningful piece of the desired behaviour in the correct project. Run the suite and confirm only that test fails — and that it fails for the right reason.
+   - **No** (e.g. `csproj` / `Directory.Packages.props` edits, package references, Aspire AppHost wiring, EF migration scaffolding, config files, documentation, pure renames, file moves with no behaviour change) — announce `[RED] no test — <one-line reason>` and proceed to GREEN without adding a test.
+
+   Order of preference when a test *is* warranted: **property test first, example-based test as fallback** — see the routing rule above.
+2. **GREEN.** Announce `[GREEN] …`. Then write the minimum code to make that test pass. Resist generalising. Run the full suite — every test (yours and pre-existing) must pass before continuing. If RED produced no test (no reasonable scenario), make the change directly and verify with the appropriate command — `dotnet build` for project / AppHost / code edits, `dotnet ef migrations script` for migration scaffolding (do **not** apply migrations against any database), or no build for pure docs / renames — then run the full suite (`dotnet test`); every test must pass before continuing.
 3. **REFACTOR.** Announce `[REFACTOR] …` (use `[REFACTOR] no change needed` if the audit finds nothing to do). Then improve the code in **files touched in this cycle only**. Extract methods, rename for clarity, eliminate duplication. Do not refactor unrelated code; if you spot drift outside the touched files, flag it via `mcp__ccd_session__spawn_task` and move on. Run the full suite again — every test must still pass.
-4. **Coverage check.** Walk through the issue's acceptance criteria explicitly — list each one, mark it covered or not. Only stop when every criterion has at least one passing test backing it. If any criterion is uncovered, return to step 1 with the next slice. **Stopping early when value objects are in place but the aggregate root, domain methods, Domain Events, or persistence mapping are still missing is a failed run.** Use the `feature_covered: false` summary path if you cannot complete; do not silently truncate scope.
+4. **Coverage check.** Walk through the issue's acceptance criteria explicitly — list each one, mark it covered or not. A criterion is covered when it has either a passing test backing it, or — for slices with no reasonable test scenario — a verified non-test change (build / migration script / file read). Only stop when every criterion is covered. If any criterion is uncovered, return to step 1 with the next slice. **Stopping early when value objects are in place but the aggregate root, domain methods, Domain Events, or persistence mapping are still missing is a failed run.** Use the `feature_covered: false` summary path if you cannot complete; do not silently truncate scope.
 
 Discipline rules:
 
@@ -66,23 +61,6 @@ Discipline rules:
 - **No skipping REFACTOR**, even when the code feels fine. The audit is part of the cycle; "no change needed" is a valid outcome but you must consider it explicitly.
 - **No git operations.** You do not commit, branch, push, or modify `.git/`. The orchestrator owns git.
 - **No design / architecture decisions.** If the task implies an ADR-worthy choice (a new aggregate boundary, a new outbox table, a new external dependency), escalate as `needs_adr`.
-
-## Non-feature path
-
-For scaffolding, config, docs, and pure-move tasks:
-
-1. Make the change directly. No RED test.
-2. Verify the change is well-formed with the relevant command:
-   - Code/project file edits → `dotnet build`.
-   - EF migration scaffolding → `dotnet ef migrations script` to confirm the migration is generatable; do **not** apply migrations against any database.
-   - Aspire AppHost wiring → `dotnet build` of the AppHost project.
-   - Documentation / pure renames → no build needed; verify by reading the affected files.
-3. Run the full existing test suite (`dotnet test`). If anything fails:
-   - Failure caused by your change → roll the change back, retry with a different approach, or escalate as `recommend_elevate_model` if you've tried more than twice.
-   - Failure pre-existing (also fails on `HEAD` before your edits) → escalate as `pre_existing_failures`.
-4. If the non-feature change is large, break it into discrete steps in your head and verify after each — same discipline, no R-G-R structure.
-
-Loop bound, escalation conditions, refactor scope, and the summary contract apply identically. In the summary, `tests_added` will typically be empty and `feature_covered` is interpreted as **"task fully completed"** (every acceptance criterion in the issue is satisfied).
 
 ## Loop bound
 
@@ -146,8 +124,8 @@ Field rules:
   - `success` — feature fully covered, no escalation.
   - `partial` — some slices covered, more needed but loop cap or escalation hit.
   - `blocked` — could not start meaningfully (e.g. pre-existing failures on entry, or escalation before any cycle ran).
-- `feature_covered`: `true` only when every acceptance criterion in the issue has a passing test against it. `false` otherwise.
-- `tests_added`: fully-qualified names of tests this agent added. Empty array if none.
+- `feature_covered`: `true` only when every acceptance criterion in the issue is satisfied — either by a passing test or, for slices with no reasonable test scenario, by a verified non-test change. `false` otherwise.
+- `tests_added`: fully-qualified names of tests this agent added. Empty array if none (including when no slice warranted a test).
 - `files_changed`: repo-relative paths of files this agent created or modified. Empty array if none.
 - `cycles_run`: integer count of completed RED→GREEN→REFACTOR cycles.
 - `escalation`: one of `not_needed | needs_human_clarification | needs_adr | recommend_elevate_model | pre_existing_failures | needs_human_authorization | loop_cap_reached`.
